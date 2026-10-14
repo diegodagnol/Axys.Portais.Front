@@ -1,10 +1,11 @@
 # Axys.Portais.Front — case base de site público em Astro (wireframe)
 
-Case do spike do [ADR-018](../Axys.Portais/docs/visao-consolidada/adr/ADR-018-site-publico-em-astro.md): site
-institucional **white label** em **wireframe**, com a estrutura típica de um site institucional simples — home com
-banners e CTAs, páginas de conteúdo, blog e fale conosco — sobre a API pública de conteúdo
-([ADR-019](../Axys.Portais/docs/visao-consolidada/adr/ADR-019-api-publica-de-conteudo.md),
-[contrato v1](../Axys.Portais/docs/planejamento/api-publica/contrato-v1.md)), por enquanto servida por um mock.
+Case do spike do ADR-018 (site público em Astro): site institucional **white label** em **wireframe**, com a
+estrutura típica de um site institucional simples — home com banners e CTAs, páginas de conteúdo, blog e fale
+conosco — sobre a API pública de conteúdo, por enquanto servida por um mock.
+
+Referências no repositório Axys.Portais: ADR-018 (site público em Astro), ADR-019 (API pública de conteúdo) e o
+contrato v1 em `docs/planejamento/api-publica`.
 
 > Wireframe: só estrutura, em cinza. Cada seção mostra uma **etiqueta de origem** — azul quando o dado vem do CMS,
 > laranja quando está fixo no projeto porque a plataforma ainda não tem o recurso. Textos em Lorem Ipsum, sem marca
