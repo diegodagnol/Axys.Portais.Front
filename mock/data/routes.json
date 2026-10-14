@@ -1,0 +1,127 @@
+{
+  "/lorem-ipsum": {
+    "tipo": "pagina",
+    "pagina": {
+      "id": "0192a3b4-0000-7000-8000-000000000101",
+      "tipo": "pagina",
+      "titulo": "Lorem ipsum",
+      "subtitulo": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+      "apresentacaoHtml": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum dolor sit amet</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><ul><li>Lorem ipsum dolor</li><li>Consectetur adipiscing</li><li>Sed do eiusmod</li></ul><h2>Consectetur adipiscing</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+      "caminho": "/lorem-ipsum",
+      "seo": {
+        "titulo": "Lorem ipsum | Lorem Ipsum",
+        "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "urlCanonica": "http://localhost:4321/lorem-ipsum",
+        "indexar": true
+      },
+      "migalhas": [
+        {
+          "titulo": "Lorem ipsum",
+          "url": "/lorem-ipsum"
+        }
+      ],
+      "blocos": [],
+      "atualizadaEmUtc": "2026-10-01T12:00:00Z"
+    }
+  },
+  "/dolor-sit": {
+    "tipo": "pagina",
+    "pagina": {
+      "id": "0192a3b4-0000-7000-8000-000000000102",
+      "tipo": "pagina",
+      "titulo": "Dolor sit",
+      "subtitulo": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+      "apresentacaoHtml": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Dolor sit dolor sit amet</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><ul><li>Lorem ipsum dolor</li><li>Consectetur adipiscing</li><li>Sed do eiusmod</li></ul><h2>Consectetur adipiscing</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+      "caminho": "/dolor-sit",
+      "seo": {
+        "titulo": "Dolor sit | Lorem Ipsum",
+        "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "urlCanonica": "http://localhost:4321/dolor-sit",
+        "indexar": true
+      },
+      "migalhas": [
+        {
+          "titulo": "Dolor sit",
+          "url": "/dolor-sit"
+        }
+      ],
+      "blocos": [],
+      "atualizadaEmUtc": "2026-10-01T12:00:00Z"
+    }
+  },
+  "/amet-consectetur": {
+    "tipo": "pagina",
+    "pagina": {
+      "id": "0192a3b4-0000-7000-8000-000000000103",
+      "tipo": "pagina",
+      "titulo": "Amet consectetur",
+      "subtitulo": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+      "apresentacaoHtml": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Amet consectetur dolor sit amet</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><ul><li>Lorem ipsum dolor</li><li>Consectetur adipiscing</li><li>Sed do eiusmod</li></ul><h2>Consectetur adipiscing</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+      "caminho": "/amet-consectetur",
+      "seo": {
+        "titulo": "Amet consectetur | Lorem Ipsum",
+        "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "urlCanonica": "http://localhost:4321/amet-consectetur",
+        "indexar": true
+      },
+      "migalhas": [
+        {
+          "titulo": "Amet consectetur",
+          "url": "/amet-consectetur"
+        }
+      ],
+      "blocos": [],
+      "atualizadaEmUtc": "2026-10-01T12:00:00Z"
+    }
+  },
+  "/adipiscing-elit": {
+    "tipo": "pagina",
+    "pagina": {
+      "id": "0192a3b4-0000-7000-8000-000000000104",
+      "tipo": "pagina",
+      "titulo": "Adipiscing elit",
+      "subtitulo": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
+      "apresentacaoHtml": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Adipiscing elit dolor sit amet</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><ul><li>Lorem ipsum dolor</li><li>Consectetur adipiscing</li><li>Sed do eiusmod</li></ul><h2>Consectetur adipiscing</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+      "caminho": "/adipiscing-elit",
+      "seo": {
+        "titulo": "Adipiscing elit | Lorem Ipsum",
+        "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "urlCanonica": "http://localhost:4321/adipiscing-elit",
+        "indexar": true
+      },
+      "migalhas": [
+        {
+          "titulo": "Adipiscing elit",
+          "url": "/adipiscing-elit"
+        }
+      ],
+      "blocos": [],
+      "atualizadaEmUtc": "2026-10-01T12:00:00Z"
+    }
+  },
+  "/politica-de-privacidade": {
+    "tipo": "pagina",
+    "pagina": {
+      "id": "0192a3b4-0000-7000-8000-000000000109",
+      "tipo": "oculta",
+      "titulo": "Política de privacidade",
+      "subtitulo": null,
+      "apresentacaoHtml": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p><h2>Lorem ipsum</h2><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>",
+      "caminho": "/politica-de-privacidade",
+      "seo": {
+        "titulo": "Política de privacidade | Lorem Ipsum",
+        "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        "urlCanonica": "http://localhost:4321/politica-de-privacidade",
+        "indexar": true
+      },
+      "migalhas": [],
+      "blocos": [],
+      "atualizadaEmUtc": "2026-10-01T12:00:00Z"
+    }
+  },
+  "/contato": {
+    "tipo": "redirecionamento",
+    "destino": "/fale-conosco",
+    "permanente": true
+  }
+}

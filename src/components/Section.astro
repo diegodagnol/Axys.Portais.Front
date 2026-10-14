@@ -1,0 +1,21 @@
+---
+/** Seção do wireframe: mostra uma etiqueta com a origem do dado (CMS ou fixo). */
+import type { Source } from '../data/home';
+
+interface Props {
+  source: Source;
+  title?: string;
+  class?: string;
+  id?: string;
+}
+
+const { source, title, class: className, id } = Astro.props;
+---
+
+<section class:list={['section', className]} id={id} data-source={source.kind}>
+  <p class="section__source">{source.label}</p>
+  <div class="container">
+    {title && <h2 class="section__title">{title}</h2>}
+    <slot />
+  </div>
+</section>

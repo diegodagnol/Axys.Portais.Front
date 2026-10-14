@@ -1,0 +1,14 @@
+---
+/** Espaço reservado para imagem no wireframe (a Mídia ainda não existe no CMS). */
+interface Props {
+  label?: string;
+  ratio?: string;
+  class?: string;
+}
+
+const { label = 'Imagem', ratio = '16 / 9', class: className } = Astro.props;
+---
+
+<div class:list={['image-placeholder', className]} style={`aspect-ratio: ${ratio}`} role="img" aria-label={label}>
+  <span>{label}</span>
+</div>

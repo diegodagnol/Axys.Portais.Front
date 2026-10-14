@@ -1,0 +1,54 @@
+{
+  "id": 1,
+  "nome": "Lorem Ipsum",
+  "cultura": "pt-BR",
+  "urlBase": "http://localhost:4321",
+  "seo": {
+    "nomeSite": "Lorem Ipsum",
+    "modeloTitulo": "{pagina} | {site}",
+    "metaDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+  },
+  "indexacao": {
+    "permitir": true,
+    "verificacaoGoogle": null,
+    "verificacaoBing": null
+  },
+  "contato": {
+    "email": "contato@lorem-ipsum.com.br",
+    "telefones": [
+      {
+        "tipo": "whatsapp",
+        "numero": "+5500900000000",
+        "numeroFormatado": "(00) 90000-0000",
+        "rotulo": "WhatsApp",
+        "exibirNoRodape": true,
+        "exibirNoBalaoWhatsApp": true,
+        "linkWhatsApp": "https://wa.me/5500900000000"
+      },
+      {
+        "tipo": "fixo",
+        "numero": "+550030000000",
+        "numeroFormatado": "(00) 3000-0000",
+        "rotulo": "Telefone",
+        "exibirNoRodape": true,
+        "exibirNoBalaoWhatsApp": false,
+        "linkWhatsApp": null
+      }
+    ]
+  },
+  "redesSociais": {
+    "instagram": "https://www.instagram.com/loremipsum",
+    "facebook": "https://www.facebook.com/loremipsum",
+    "linkedin": null,
+    "youtube": null,
+    "tiktok": null,
+    "x": null
+  },
+  "rastreamento": {
+    "ga4": null,
+    "gtm": null,
+    "metaPixelId": null,
+    "metaAppId": null,
+    "metaVerificacaoDominio": null
+  }
+}

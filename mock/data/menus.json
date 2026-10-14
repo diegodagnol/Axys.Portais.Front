@@ -1,0 +1,137 @@
+{
+  "principal": {
+    "chave": "principal",
+    "nome": "Menu principal",
+    "local": "principal",
+    "itens": [
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000211",
+        "tipo": "link",
+        "titulo": "Home",
+        "link": {
+          "url": "/",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000212",
+        "tipo": "pagina",
+        "titulo": "Lorem ipsum",
+        "link": {
+          "url": "/lorem-ipsum",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000213",
+        "tipo": "pagina",
+        "titulo": "Dolor sit",
+        "link": {
+          "url": "/dolor-sit",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000214",
+        "tipo": "pagina",
+        "titulo": "Amet consectetur",
+        "link": {
+          "url": "/amet-consectetur",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000215",
+        "tipo": "pagina",
+        "titulo": "Adipiscing elit",
+        "link": {
+          "url": "/adipiscing-elit",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000216",
+        "tipo": "link",
+        "titulo": "Blog",
+        "link": {
+          "url": "/noticias",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000217",
+        "tipo": "link",
+        "titulo": "Contato",
+        "link": {
+          "url": "/fale-conosco",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      }
+    ]
+  },
+  "rodape": {
+    "chave": "rodape",
+    "nome": "Menu do rodapé",
+    "local": "rodape",
+    "itens": [
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000221",
+        "tipo": "pagina",
+        "titulo": "Lorem ipsum",
+        "link": {
+          "url": "/lorem-ipsum",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000222",
+        "tipo": "link",
+        "titulo": "Blog",
+        "link": {
+          "url": "/noticias",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000223",
+        "tipo": "link",
+        "titulo": "Contato",
+        "link": {
+          "url": "/fale-conosco",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      },
+      {
+        "id": "0192a3b4-0000-7000-8000-000000000224",
+        "tipo": "link",
+        "titulo": "Política de privacidade",
+        "link": {
+          "url": "/politica-de-privacidade",
+          "novaJanela": false,
+          "externo": false
+        },
+        "filhos": []
+      }
+    ]
+  }
+}

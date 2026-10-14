@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AxysHtml from '../../portal/content/AxysHtml.astro';
+import NotFound from '../../components/NotFound.astro';
+import ImagePlaceholder from '../../components/ImagePlaceholder.astro';
+import CtaSection from '../../components/CtaSection.astro';
+import { getPost } from '../../portal/api/queries';
+import { formatDate } from '../../portal/format';
+import { pageSeo } from '../../portal/seo/seo';
+import { cmsSources } from '../../data/home';
+
+const { site, host } = Astro.locals;
+const post = await getPost(host, Astro.params.slug ?? '');
+if (!post) {
+  Astro.response.status = 404;
+}
+
+const seo = post?.seo ?? pageSeo(site, { title: 'Artigo não encontrado', path: Astro.url.pathname, index: false });
+const jsonLd = post
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: post.titulo,
+      description: post.resumo ?? undefined,
+      datePublished: post.publicadaEmUtc,
+      dateModified: post.atualizadaEmUtc,
+      mainEntityOfPage: post.seo.urlCanonica,
+      publisher: { '@type': 'Organization', name: site.seo.nomeSite ?? site.nome, url: site.urlBase },
+    }
+  : undefined;
+---
+
+<BaseLayout seo={seo} type={post ? 'article' : 'website'} jsonLd={jsonLd}>
+  {post ? (
+    <>
+      <article class="section" data-source={cmsSources.post.kind}>
+        <p class="section__source">{cmsSources.post.label}</p>
+        <div class="container container--text stack">
+          <nav class="breadcrumb" aria-label="Você está em">
+            <ol>
+              <li><a href="/">Início</a></li>
+              <li><a href="/noticias">Blog</a></li>
+              <li><span aria-current="page">{post.titulo}</span></li>
+            </ol>
+          </nav>
+          <p class="card__meta">
+            <a href={post.categoria.url}>{post.categoria.nome}</a> ·
+            <time datetime={post.publicadaEmUtc}>{formatDate(post.publicadaEmUtc, site.cultura)}</time>
+          </p>
+          <h1>{post.titulo}</h1>
+          {post.resumo && <p class="page-header__subtitle">{post.resumo}</p>}
+          <ImagePlaceholder label="Imagem de capa (depende do módulo Mídia)" />
+          <AxysHtml html={post.corpoHtml} />
+          {post.tags.length > 0 && (
+            <ul class="tags" aria-label="Tags">
+              {post.tags.map((tag) => (
+                <li><a href={tag.url}>{tag.nome}</a></li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </article>
+      <CtaSection />
+    </>
+  ) : (
+    <NotFound title="Artigo não encontrado" />
+  )}
+</BaseLayout>

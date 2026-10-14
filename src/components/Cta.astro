@@ -1,0 +1,22 @@
+---
+/** CTA (call to action) principal do site: WhatsApp marcado no CMS para o balão; sem ele, a página de contato. */
+interface Props {
+  text?: string;
+  class?: string;
+}
+
+const { text = 'Call To Action', class: className } = Astro.props;
+const { site } = Astro.locals;
+const whatsapp = site.contato.telefones.find((phone) => phone.exibirNoBalaoWhatsApp && phone.linkWhatsApp);
+const href = whatsapp?.linkWhatsApp ?? '/fale-conosco';
+---
+
+<a
+  class:list={['button', 'button--primary', className]}
+  href={href}
+  target={whatsapp ? '_blank' : undefined}
+  rel={whatsapp ? 'noopener' : undefined}
+  data-no-prerender={whatsapp ? '' : undefined}
+>
+  {text}
+</a>

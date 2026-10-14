@@ -1,0 +1,37 @@
+---
+import type { Seo, Site } from '../api/client';
+
+interface Props {
+  seo: Seo;
+  site: Site;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>;
+}
+
+const { seo, site, type = 'website', jsonLd } = Astro.props;
+const indexable = seo.indexar && site.indexacao.permitir;
+const siteName = site.seo.nomeSite ?? site.nome;
+// JSON-LD é gerado aqui, não vem do CMS; "<" escapado para não fechar o <script>.
+const structuredData = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : null;
+---
+
+<title>{seo.titulo}</title>
+{seo.descricao && <meta name="description" content={seo.descricao} />}
+<link rel="canonical" href={seo.urlCanonica} />
+<meta name="robots" content={indexable ? 'index, follow' : 'noindex, nofollow'} />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:title" content={seo.titulo} />
+{seo.descricao && <meta property="og:description" content={seo.descricao} />}
+<meta property="og:url" content={seo.urlCanonica} />
+<meta property="og:locale" content={site.cultura.replace('-', '_')} />
+<meta name="twitter:card" content="summary_large_image" />
+
+{site.indexacao.verificacaoGoogle && <meta name="google-site-verification" content={site.indexacao.verificacaoGoogle} />}
+{site.indexacao.verificacaoBing && <meta name="msvalidate.01" content={site.indexacao.verificacaoBing} />}
+{site.rastreamento.metaVerificacaoDominio && (
+  <meta name="facebook-domain-verification" content={site.rastreamento.metaVerificacaoDominio} />
+)}
+
+{structuredData && <script is:inline type="application/ld+json" set:html={structuredData}></script>}

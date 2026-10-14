@@ -1,0 +1,114 @@
+---
+import type { FormFieldDefinition, Schemas } from '../api/client';
+
+interface Props {
+  field: FormFieldDefinition;
+  values: string[];
+  error?: string;
+}
+
+const { field, values, error } = Astro.props;
+
+// A configuração depende do tipo; as propriedades de cada `Config*` do contrato não conflitam entre si.
+type FieldConfig = Partial<
+  Schemas['ConfigTextoCurto'] & Schemas['ConfigTextoLongo'] & Schemas['ConfigTelefone'] & Schemas['ConfigNumero'] &
+    Schemas['ConfigData'] & Schemas['ConfigLista'] & Schemas['ConfigMultiplaEscolha'] & Schemas['ConfigAceite'] &
+    Schemas['ConfigTextoInformativo']
+>;
+const config = field.configuracao as FieldConfig;
+
+const id = `field-${field.chave}`;
+const helpId = field.ajuda ? `${id}-help` : undefined;
+const errorId = error ? `${id}-error` : undefined;
+const describedBy = [helpId, errorId].filter(Boolean).join(' ') || undefined;
+const value = values[0] ?? '';
+const step = config.casasDecimais ? 1 / 10 ** config.casasDecimais : 1;
+const width = field.largura === 'meia' ? 'half' : 'full';
+
+const common = {
+  id,
+  name: field.chave,
+  required: field.obrigatorio,
+  'aria-invalid': error ? ('true' as const) : undefined,
+  'aria-describedby': describedBy,
+};
+---
+
+{field.tipo === 'titulo-secao' && <h2 class="axys-form__section">{field.rotulo}</h2>}
+
+{field.tipo === 'texto-informativo' && <p class="axys-form__info">{config.texto}</p>}
+
+{field.recebeResposta && (
+  <div class:list={['axys-form__field', `axys-form__field--${width}`, { 'axys-form__field--error': error }]}>
+    {['escolha-unica', 'multipla-escolha'].includes(field.tipo) ? (
+      <fieldset class="axys-form__group" aria-describedby={describedBy}>
+        <legend class="axys-form__label">
+          {field.rotulo}
+          {field.obrigatorio && <span class="axys-form__required" aria-hidden="true">*</span>}
+        </legend>
+        {(config.opcoes ?? []).map((option, i) => (
+          <label class="axys-form__option">
+            <input
+              type={field.tipo === 'escolha-unica' ? 'radio' : 'checkbox'}
+              id={`${id}-${i}`}
+              name={field.chave}
+              value={option}
+              checked={values.includes(option)}
+              required={field.tipo === 'escolha-unica' && field.obrigatorio}
+            />
+            {option}
+          </label>
+        ))}
+      </fieldset>
+    ) : field.tipo === 'aceite' ? (
+      <label class="axys-form__option axys-form__consent">
+        <input type="checkbox" value="sim" checked={value === 'sim'} {...common} />
+        <span>
+          {config.texto}
+          {config.linkPolitica && (
+            <>
+              {' '}<a href={config.linkPolitica} target="_blank" rel="noopener">Ler a política</a>
+            </>
+          )}
+        </span>
+      </label>
+    ) : (
+      <>
+        <label class="axys-form__label" for={id}>
+          {field.rotulo}
+          {field.obrigatorio && <span class="axys-form__required" aria-hidden="true">*</span>}
+        </label>
+
+        {field.tipo === 'texto-curto' && (
+          <input type="text" value={value} minlength={config.minimo ?? undefined} maxlength={config.maximo ?? 500} placeholder={config.placeholder ?? undefined} {...common} />
+        )}
+        {field.tipo === 'texto-longo' && (
+          <textarea rows={config.linhas ?? 4} maxlength={config.maximo ?? 5000} placeholder={config.placeholder ?? undefined} {...common}>{value}</textarea>
+        )}
+        {field.tipo === 'email' && (
+          <input type="email" value={value} maxlength={254} autocomplete="email" placeholder={config.placeholder ?? undefined} {...common} />
+        )}
+        {field.tipo === 'telefone' && (
+          <input type="tel" value={value} inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" {...common} />
+        )}
+        {field.tipo === 'numero' && (
+          <input type="number" value={value} step={step} min={config.minimo ?? undefined} max={config.maximo ?? undefined} {...common} />
+        )}
+        {field.tipo === 'data' && (
+          <input type="date" value={value} min={config.minima ?? undefined} max={config.maxima ?? undefined} {...common} />
+        )}
+        {field.tipo === 'lista' && (
+          <select {...common}>
+            <option value="">{config.textoPrimeiraLinha ?? 'Selecione'}</option>
+            {(config.opcoes ?? []).map((option) => (
+              <option value={option} selected={value === option}>{option}</option>
+            ))}
+          </select>
+        )}
+      </>
+    )}
+
+    {field.ajuda && <p class="axys-form__help" id={helpId}>{field.ajuda}</p>}
+    {error && <p class="axys-form__error" id={errorId}>{error}</p>}
+  </div>
+)}

@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import PostCard from '../../components/PostCard.astro';
+import Pagination from '../../components/Pagination.astro';
+import NotFound from '../../components/NotFound.astro';
+import { listPosts } from '../../portal/api/queries';
+import { pageSeo } from '../../portal/seo/seo';
+import { cmsSources, staticSources } from '../../data/home';
+
+// O site chama de "Blog"; na plataforma é o módulo Notícias (rota /noticias, pendência P7).
+const { site, host } = Astro.locals;
+const params = Astro.url.searchParams;
+const page = Math.max(1, Number.parseInt(params.get('pagina') ?? '1', 10) || 1);
+const category = params.get('categoria') ?? undefined;
+const tag = params.get('tag') ?? undefined;
+
+const list = await listPosts(host, { page, size: 9, category, tag });
+if (!list) {
+  Astro.response.status = 404;
+}
+
+const title = list?.filtro.categoria?.nome ?? (list?.filtro.tag ? `Artigos sobre ${list.filtro.tag.nome}` : 'Blog');
+const seo = pageSeo(site, {
+  title: page > 1 ? `${title} — página ${page}` : title,
+  path: Astro.url.pathname + Astro.url.search,
+  index: Boolean(list),
+});
+---
+
+<BaseLayout seo={seo}>
+  {list ? (
+    <>
+      <section class="page-header" data-source={staticSources.blogSearch.kind}>
+        <p class="section__source">{staticSources.blogSearch.label}</p>
+        <div class="container stack">
+          <h1>{title}</h1>
+          <form class="search-placeholder" role="search" action="/noticias" method="get">
+            <input type="search" name="q" placeholder="Buscar artigos (wireframe)" disabled />
+            <button class="button" type="submit" disabled>Buscar</button>
+          </form>
+        </div>
+      </section>
+
+      <Section source={cmsSources.postList} title="Últimas publicações">
+        {list.itens.length === 0 ? (
+          <p>Nenhum artigo publicado ainda.</p>
+        ) : (
+          <ul class="grid grid--3">
+            {list.itens.map((post) => (
+              <li><PostCard post={post} /></li>
+            ))}
+          </ul>
+        )}
+        <Pagination current={list.pagina} total={list.totalPaginas} filters={{ categoria: category, tag }} />
+      </Section>
+    </>
+  ) : (
+    <NotFound title="Categoria ou tag não encontrada" />
+  )}
+</BaseLayout>

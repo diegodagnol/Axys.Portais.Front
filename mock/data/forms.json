@@ -1,0 +1,74 @@
+{
+  "0192a3b4-0000-7000-8000-00000000f001": {
+    "id": "0192a3b4-0000-7000-8000-00000000f001",
+    "textoBotao": "Enviar",
+    "mensagemSucesso": "Lorem ipsum dolor sit amet: mensagem recebida.",
+    "campos": [
+      {
+        "chave": "nome",
+        "tipo": "texto-curto",
+        "rotulo": "Nome",
+        "ajuda": null,
+        "obrigatorio": true,
+        "largura": "inteira",
+        "recebeResposta": true,
+        "configuracao": {
+          "placeholder": null,
+          "minimo": 3,
+          "maximo": 150
+        }
+      },
+      {
+        "chave": "telefone",
+        "tipo": "telefone",
+        "rotulo": "Telefone/WhatsApp",
+        "ajuda": null,
+        "obrigatorio": true,
+        "largura": "meia",
+        "recebeResposta": true,
+        "configuracao": {
+          "soCelular": false
+        }
+      },
+      {
+        "chave": "e-mail",
+        "tipo": "email",
+        "rotulo": "E-mail",
+        "ajuda": null,
+        "obrigatorio": true,
+        "largura": "meia",
+        "recebeResposta": true,
+        "configuracao": {
+          "placeholder": null
+        }
+      },
+      {
+        "chave": "mensagem",
+        "tipo": "texto-longo",
+        "rotulo": "Mensagem",
+        "ajuda": null,
+        "obrigatorio": false,
+        "largura": "inteira",
+        "recebeResposta": true,
+        "configuracao": {
+          "placeholder": null,
+          "maximo": 2000,
+          "linhas": 5
+        }
+      },
+      {
+        "chave": "aceite-da-politica",
+        "tipo": "aceite",
+        "rotulo": "Aceite da política",
+        "ajuda": null,
+        "obrigatorio": true,
+        "largura": "inteira",
+        "recebeResposta": true,
+        "configuracao": {
+          "texto": "Li e aceito a política de privacidade.",
+          "linkPolitica": "/politica-de-privacidade"
+        }
+      }
+    ]
+  }
+}

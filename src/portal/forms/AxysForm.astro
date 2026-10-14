@@ -1,0 +1,46 @@
+---
+/**
+ * Formulário no modo automático (ADR-020 D3): desenhado a partir da definição da API, com HTML neutro e classes
+ * `axys-form__*`. O visual é do site: estilize as classes ou desenhe à mão usando as mesmas chaves dos campos.
+ * Funciona sem JavaScript (POST nativo + redirecionamento).
+ */
+import type { Form } from '../api/client';
+import { CONTROL_FIELDS, createTimestamp } from './submission';
+import FormField from './FormField.astro';
+
+interface Props {
+  form: Form;
+  /** `actions.submitForm` do projeto. */
+  action: { toString(): string };
+  sourcePage: string;
+  errors?: Record<string, string[]>;
+  values?: Record<string, string[]>;
+  alert?: string | null;
+}
+
+const { form, action, sourcePage, errors = {}, values = {}, alert } = Astro.props;
+const timestamp = createTimestamp(form.id);
+---
+
+<form class="axys-form" method="post" action={String(action)}>
+  {alert && <p class="axys-form__alert" role="alert">{alert}</p>}
+
+  <input type="hidden" name={CONTROL_FIELDS.form} value={form.id} />
+  <input type="hidden" name={CONTROL_FIELDS.timestamp} value={timestamp} />
+  <input type="hidden" name={CONTROL_FIELDS.page} value={sourcePage} />
+
+  <div class="axys-form__honeypot" aria-hidden="true">
+    <label>
+      Não preencha este campo
+      <input type="text" name={CONTROL_FIELDS.honeypot} tabindex="-1" autocomplete="off" />
+    </label>
+  </div>
+
+  <div class="axys-form__fields">
+    {form.campos.map((field) => (
+      <FormField field={field} values={values[field.chave] ?? []} error={errors[field.chave]?.[0]} />
+    ))}
+  </div>
+
+  <button class="button button--primary axys-form__submit" type="submit">{form.textoBotao}</button>
+</form>

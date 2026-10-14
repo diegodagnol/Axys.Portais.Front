@@ -1,0 +1,84 @@
+{
+  "principal": [
+    {
+      "id": "0192a3b4-0000-7000-8000-000000000401",
+      "tipo": "imagem",
+      "titulo": "Banner 1",
+      "chamadaPrincipal": "Lorem ipsum dolor sit amet, consectetur adipiscing",
+      "chamadaSecundaria": "Sed do eiusmod tempor incididunt ut labore et dolore.",
+      "link": {
+        "url": "/fale-conosco",
+        "novaJanela": false,
+        "externo": false
+      },
+      "textoBotao": "Call To Action",
+      "video": null,
+      "imagem": {
+        "desktop": {
+          "url": "/mock/banner-1.svg",
+          "alt": "",
+          "largura": 1600,
+          "altura": 700,
+          "variantes": []
+        },
+        "mobile": null
+      },
+      "tempoTransicaoSegundos": 6,
+      "exibirSoPrimeiroAcesso": false
+    },
+    {
+      "id": "0192a3b4-0000-7000-8000-000000000402",
+      "tipo": "imagem",
+      "titulo": "Banner 2",
+      "chamadaPrincipal": "Consectetur adipiscing elit",
+      "chamadaSecundaria": "Sed do eiusmod tempor incididunt ut labore et dolore.",
+      "link": {
+        "url": "/dolor-sit",
+        "novaJanela": false,
+        "externo": false
+      },
+      "textoBotao": "Call To Action",
+      "video": null,
+      "imagem": {
+        "desktop": {
+          "url": "/mock/banner-2.svg",
+          "alt": "",
+          "largura": 1600,
+          "altura": 700,
+          "variantes": []
+        },
+        "mobile": null
+      },
+      "tempoTransicaoSegundos": 6,
+      "exibirSoPrimeiroAcesso": false
+    },
+    {
+      "id": "0192a3b4-0000-7000-8000-000000000403",
+      "tipo": "imagem",
+      "titulo": "Banner 3",
+      "chamadaPrincipal": "Sed do eiusmod tempor incididunt",
+      "chamadaSecundaria": "Sed do eiusmod tempor incididunt ut labore et dolore.",
+      "link": {
+        "url": "/amet-consectetur",
+        "novaJanela": false,
+        "externo": false
+      },
+      "textoBotao": "Call To Action",
+      "video": null,
+      "imagem": {
+        "desktop": {
+          "url": "/mock/banner-3.svg",
+          "alt": "",
+          "largura": 1600,
+          "altura": 700,
+          "variantes": []
+        },
+        "mobile": null
+      },
+      "tempoTransicaoSegundos": 8,
+      "exibirSoPrimeiroAcesso": false
+    }
+  ],
+  "rodape": [],
+  "modal": []
+}

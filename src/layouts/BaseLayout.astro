@@ -1,0 +1,36 @@
+---
+import AxysHead from '../portal/seo/AxysHead.astro';
+import SpeculationRules from '../portal/navigation/SpeculationRules.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { Seo } from '../portal/api/client';
+import '../styles/wireframe.css';
+
+interface Props {
+  seo: Seo;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>;
+}
+
+const { seo, type, jsonLd } = Astro.props;
+const { site } = Astro.locals;
+---
+
+<!doctype html>
+<html lang={site.cultura}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <AxysHead seo={seo} site={site} type={type} jsonLd={jsonLd} />
+    <SpeculationRules />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Pular para o conteúdo</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,18 @@
+---
+import Cta from './Cta.astro';
+import { staticSources } from '../data/home';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit' } = Astro.props;
+---
+
+<section class="cta-section" data-source={staticSources.ctaSection.kind}>
+  <p class="section__source">{staticSources.ctaSection.label}</p>
+  <div class="cta-section__content container">
+    <p class="cta-section__title">{title}</p>
+    <Cta />
+  </div>
+</section>

@@ -1,0 +1,22 @@
+---
+/**
+ * Speculation Rules: o navegador pré-renderiza a próxima página quando o visitante passa o mouse no link.
+ * Navegadores sem suporte ignoram. Rotas internas e links marcados com `data-no-prerender` ficam de fora.
+ */
+const rules = {
+  prerender: [
+    {
+      where: {
+        and: [
+          { href_matches: '/*' },
+          { not: { href_matches: '/_actions/*' } },
+          { not: { selector_matches: '[data-no-prerender]' } },
+        ],
+      },
+      eagerness: 'moderate',
+    },
+  ],
+};
+---
+
+<script is:inline type="speculationrules" set:html={JSON.stringify(rules)}></script>

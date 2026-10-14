@@ -1,0 +1,27 @@
+---
+/** Acordeão sem JavaScript (<details>), com dados estruturados FAQPage para o Google. */
+import Section from './Section.astro';
+import { faq } from '../data/home';
+
+const structuredData = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+}).replace(/</g, '\\u003c');
+---
+
+<Section source={faq.source} title={faq.title} class="faq">
+  <div class="faq__list">
+    {faq.items.map((item) => (
+      <details class="faq__item">
+        <summary>{item.question}</summary>
+        <p>{item.answer}</p>
+      </details>
+    ))}
+  </div>
+  <script is:inline type="application/ld+json" set:html={structuredData}></script>
+</Section>

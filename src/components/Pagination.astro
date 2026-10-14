@@ -1,0 +1,28 @@
+---
+interface Props {
+  current: number;
+  total: number;
+  /** Filtros que acompanham a navegação (categoria, tag). */
+  filters?: Record<string, string | undefined>;
+}
+
+const { current, total, filters = {} } = Astro.props;
+
+function pageUrl(page: number): string {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value) params.set(key, value);
+  }
+  if (page > 1) params.set('pagina', String(page));
+  const query = params.toString();
+  return query ? `${Astro.url.pathname}?${query}` : Astro.url.pathname;
+}
+---
+
+{total > 1 && (
+  <nav class="pagination" aria-label="Paginação">
+    {current > 1 ? <a class="pagination__link" href={pageUrl(current - 1)} rel="prev">Anteriores</a> : <span></span>}
+    <span class="pagination__position">Página {current} de {total}</span>
+    {current < total ? <a class="pagination__link" href={pageUrl(current + 1)} rel="next">Próximas</a> : <span></span>}
+  </nav>
+)}

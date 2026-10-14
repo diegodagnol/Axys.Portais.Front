@@ -1,0 +1,798 @@
+/*
+ * Wireframe: só estrutura, em tons de cinza. O design do cliente substitui este arquivo
+ * (Tailwind + 7-1, ADR-018 D6, quando houver identidade visual).
+ */
+
+/* ---------- Reset mínimo ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------- Base ---------- */
+:root {
+  --wf-ink: #222;
+  --wf-muted: #666;
+  --wf-line: #bbb;
+  --wf-background: #fff;
+  --wf-surface: #f2f2f2;
+  --wf-dark: #333;
+  --wf-cms: #2f6fb3;
+  --wf-static: #b5651d;
+  --max-width: 72rem;
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+body {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--wf-background);
+  color: var(--wf-ink);
+  font: 16px/1.6 ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+main {
+  flex: 1;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--wf-cms);
+  outline-offset: 2px;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 1.2rem + 2.5vw, 2.6rem);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.35rem, 1.1rem + 1.2vw, 1.8rem);
+  line-height: 1.25;
+}
+
+h3 {
+  font-size: 1.1rem;
+}
+
+.container {
+  width: min(100% - 2rem, var(--max-width));
+  margin-inline: auto;
+}
+
+.container--text {
+  max-width: 46rem;
+}
+
+.stack > * + * {
+  margin-top: 1rem;
+}
+
+.align-right {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -10rem;
+  padding: 0.5rem 1rem;
+  background: var(--wf-dark);
+  color: #fff;
+
+  &:focus {
+    top: 1rem;
+  }
+}
+
+/* ---------- Grades ---------- */
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.grid--4 {
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+}
+
+.two-columns {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+
+  @media (min-width: 48rem) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---------- Seções e etiquetas de origem ---------- */
+.section,
+.page-header,
+.cta-section {
+  position: relative;
+  padding-block: 3.5rem;
+  border-bottom: 1px dashed var(--wf-line);
+}
+
+.section__title {
+  margin-bottom: 1.75rem;
+}
+
+.section__source {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+[data-source="cms"] > .section__source {
+  background: var(--wf-cms);
+}
+
+[data-source="static"] > .section__source {
+  background: var(--wf-static);
+}
+
+.page-header {
+  background: var(--wf-surface);
+}
+
+.page-header__subtitle {
+  font-size: 1.15rem;
+  color: var(--wf-muted);
+}
+
+/* ---------- Componentes ---------- */
+.image-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  border: 2px dashed var(--wf-line);
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1px), var(--wf-line), transparent calc(50% + 1px)),
+    linear-gradient(to top left, transparent calc(50% - 1px), var(--wf-line), transparent calc(50% + 1px)),
+    var(--wf-surface);
+  color: var(--wf-muted);
+  font-size: 0.85rem;
+  text-align: center;
+
+  & span {
+    padding: 0.2rem 0.5rem;
+    background: var(--wf-surface);
+  }
+}
+
+.button {
+  display: inline-block;
+  padding: 0.65rem 1.3rem;
+  border: 2px solid var(--wf-dark);
+  border-radius: 6px;
+  background: var(--wf-background);
+  color: var(--wf-dark);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button--primary {
+  background: var(--wf-dark);
+  color: #fff;
+}
+
+.card {
+  height: 100%;
+  padding: 1.25rem;
+  border: 1px solid var(--wf-line);
+  border-radius: 8px;
+
+  & > * + * {
+    margin-top: 0.6rem;
+  }
+}
+
+.card__icon {
+  width: 3rem;
+}
+
+.card__meta,
+.card__text {
+  font-size: 0.9rem;
+  color: var(--wf-muted);
+}
+
+.card__more {
+  display: inline-block;
+  font-weight: 600;
+}
+
+.box {
+  padding: 1.5rem;
+  border: 1px solid var(--wf-line);
+  border-radius: 8px;
+  background: var(--wf-surface);
+}
+
+.plain-list li {
+  padding-block: 0.35rem;
+  border-bottom: 1px solid var(--wf-surface);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  & a {
+    padding: 0.15rem 0.7rem;
+    border: 1px solid var(--wf-line);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--wf-muted);
+
+  & li + li::before {
+    content: "/";
+    margin-right: 0.5rem;
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.search-placeholder {
+  display: flex;
+  gap: 0.5rem;
+  max-width: 32rem;
+
+  & input {
+    flex: 1;
+    padding: 0.6rem;
+    border: 1px solid var(--wf-line);
+    font: inherit;
+  }
+}
+
+/* ---------- Cabeçalho e rodapé ---------- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 2px solid var(--wf-dark);
+  background: var(--wf-background);
+}
+
+.header__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2rem;
+  padding-block: 0.9rem;
+}
+
+.header__logo {
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.header__menu {
+  flex: 1;
+}
+
+/* Celular: menu em linha própria e cabeçalho não fixo. O menu de celular de verdade é decisão do design. */
+@media (max-width: 48rem) {
+  .header {
+    position: static;
+  }
+
+  .header__bar {
+    justify-content: space-between;
+  }
+
+  .header__menu {
+    flex-basis: 100%;
+    order: 3;
+    font-size: 0.95rem;
+  }
+}
+
+.menu--level-1 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+
+.menu__link {
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.header .menu--level-2 {
+  display: none;
+}
+
+.footer {
+  margin-top: 0;
+  background: var(--wf-surface);
+  border-top: 2px solid var(--wf-dark);
+  font-size: 0.95rem;
+}
+
+.footer__grid {
+  display: grid;
+  gap: 2rem;
+  padding-block: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+
+  & .menu--level-1 {
+    flex-direction: column;
+  }
+}
+
+.footer__logo {
+  font-weight: 700;
+}
+
+.footer__social {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.footer__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-style: normal;
+}
+
+.footer__copyright {
+  padding-block: 1rem 2rem;
+  color: var(--wf-muted);
+}
+
+.whatsapp-button {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 999px;
+  background: var(--wf-dark);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ---------- Topo da home: full bleed + carrossel ---------- */
+.hero {
+  position: relative;
+  border-bottom: 1px dashed var(--wf-line);
+
+  & > .section__source {
+    z-index: 3;
+  }
+}
+
+axys-carousel {
+  position: relative;
+  display: block;
+}
+
+/* Trilho com scroll-snap: sem JavaScript, rola/arrasta; o <axys-carousel> só acrescenta controles. */
+.hero__track {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.hero__slide {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: clamp(24rem, 62vh, 42rem);
+  scroll-snap-align: start;
+  overflow: hidden;
+  color: #fff;
+}
+
+.hero__media,
+.hero__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero__media--placeholder {
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1px), #bdbdbd, transparent calc(50% + 1px)),
+    linear-gradient(to top left, transparent calc(50% - 1px), #bdbdbd, transparent calc(50% + 1px)),
+    #d9d9d9;
+}
+
+/* Véu para o texto ter contraste sobre qualquer imagem. */
+.hero__slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.65), rgb(0 0 0 / 0.25) 60%, transparent);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  padding-block: 4rem 6rem;
+
+  & > * {
+    max-width: 38rem;
+  }
+
+  & > * + * {
+    margin-top: 1.25rem;
+  }
+
+  & .button--primary {
+    background: #fff;
+    border-color: #fff;
+    color: var(--wf-dark);
+  }
+}
+
+.hero__headline {
+  font-size: clamp(2rem, 1.2rem + 3.4vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: pre-line;
+}
+
+.hero__subheadline {
+  font-size: 1.15rem;
+  opacity: 0.9;
+}
+
+/* Controles só aparecem quando o componente está ativo (JavaScript carregado). */
+.carousel__controls {
+  display: none;
+}
+
+axys-carousel[data-ready] .carousel__controls {
+  display: block;
+}
+
+.carousel__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.85);
+  color: var(--wf-dark);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  transform: translateY(-50%);
+
+  &:hover {
+    background: #fff;
+  }
+}
+
+.carousel__arrow--prev {
+  left: 1rem;
+}
+
+.carousel__arrow--next {
+  right: 1rem;
+}
+
+.carousel__bottom {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.carousel__dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carousel__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  transition: width 0.25s ease, background-color 0.25s ease;
+
+  &[aria-current="true"] {
+    width: 2rem;
+    background: #fff;
+  }
+}
+
+.carousel__toggle {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.35);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+@media (max-width: 48rem) {
+  .carousel__arrow {
+    display: none;
+  }
+}
+
+.steps__item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--wf-line);
+  border-radius: 8px;
+}
+
+.steps__number {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--wf-dark);
+  color: #fff;
+  font-weight: 700;
+}
+
+.cta-section {
+  background: var(--wf-dark);
+  color: #fff;
+
+  & .button--primary {
+    background: #fff;
+    color: var(--wf-dark);
+    border-color: #fff;
+  }
+}
+
+.cta-section__content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.cta-section__title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.faq__list {
+  max-width: 48rem;
+}
+
+.faq__item {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--wf-line);
+
+  & summary {
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  & p {
+    margin-top: 0.5rem;
+    color: var(--wf-muted);
+  }
+}
+
+/* ---------- Conteúdo vindo do CMS (Quill 2, ADR-014 D6) ---------- */
+.cms-content {
+  & > * + * {
+    margin-top: 1em;
+  }
+
+  & h2,
+  & h3 {
+    margin-top: 1.6em;
+  }
+
+  & ul {
+    list-style: disc;
+    padding-left: 1.5em;
+  }
+
+  & ol {
+    list-style: decimal;
+    padding-left: 1.5em;
+  }
+
+  & blockquote {
+    padding-left: 1em;
+    border-left: 4px solid var(--wf-line);
+    color: var(--wf-muted);
+  }
+
+  & .ql-align-center {
+    text-align: center;
+  }
+
+  & .ql-align-right {
+    text-align: right;
+  }
+
+  & .ql-align-justify {
+    text-align: justify;
+  }
+}
+
+/* ---------- Formulário (classes form-axys-*, iguais ao Visualizar do CMS) ---------- */
+.axys-form__fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.axys-form__field,
+.axys-form__section,
+.axys-form__info {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 40rem) {
+  .axys-form__field--half {
+    grid-column: span 1;
+  }
+}
+
+.axys-form__label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+}
+
+.axys-form__required {
+  margin-left: 0.2rem;
+}
+
+.axys-form input:not([type="checkbox"], [type="radio"]),
+.axys-form select,
+.axys-form textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--wf-line);
+  border-radius: 6px;
+  font: inherit;
+
+  &[aria-invalid="true"] {
+    border: 2px solid #b00020;
+  }
+}
+
+.axys-form__group {
+  display: grid;
+  gap: 0.3rem;
+  border: 0;
+  padding: 0;
+}
+
+.axys-form__option {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+
+  & input {
+    margin-top: 0.35rem;
+  }
+}
+
+.axys-form__help {
+  font-size: 0.85rem;
+  color: var(--wf-muted);
+}
+
+.axys-form__error {
+  font-size: 0.85rem;
+  color: #b00020;
+}
+
+.axys-form__alert,
+.axys-form__success {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid var(--wf-dark);
+  background: var(--wf-surface);
+}
+
+.axys-form__submit {
+  margin-top: 1.5rem;
+}
+
+.axys-form__honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

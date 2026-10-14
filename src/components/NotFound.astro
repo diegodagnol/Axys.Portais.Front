@@ -1,0 +1,15 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = 'Página não encontrada' } = Astro.props;
+---
+
+<section class="section">
+  <div class="container stack">
+    <h1>{title}</h1>
+    <p>O endereço pode ter mudado ou o conteúdo não está mais disponível.</p>
+    <p><a class="button" href="/">Call To Action</a></p>
+  </div>
+</section>

@@ -1,0 +1,1036 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Axys.Portal — API pública de conteúdo",
+    "version": "1.0.0-rascunho",
+    "summary": "Conteúdo publicado de um site, pronto para o site público renderizar (ADR-019).",
+    "description": "Rascunho para revisão dos times de front-end e back-end. Convenções, mapeamento para o domínio e pendências em `contrato-v1.md`, nesta mesma pasta.\n\n- Toda chamada é **servidor a servidor**: o site público (Astro) chama a API; o navegador nunca chama.\n- O site é resolvido pelo cabeçalho `X-Axys-Host` (host da requisição do visitante). Sem site padrão.\n- A API entrega tudo **resolvido**: URLs, SEO efetivo, canonical, herança de configurações e HTML já sanitizado.\n- JSON em camelCase; datas em ISO 8601 UTC (`Z`); identificadores de conteúdo são GUIDs."
+  },
+  "servers": [
+    { "url": "https://api.exemplo.com.br/v1", "description": "Ilustrativo; cada instalação tem o seu endereço." }
+  ],
+  "security": [{ "chaveConsumidor": [] }],
+  "tags": [
+    { "name": "Site" },
+    { "name": "Rotas" },
+    { "name": "Menus" },
+    { "name": "Notícias" },
+    { "name": "Banners" },
+    { "name": "SEO" },
+    { "name": "Formulários" }
+  ],
+  "paths": {
+    "/site": {
+      "get": {
+        "tags": ["Site"],
+        "operationId": "obterSite",
+        "summary": "Dados do site e configurações efetivas",
+        "description": "Configurações com a herança padrão → site já aplicada (ADR-013). Os identificadores de rastreamento só devem ser usados pelo site depois do consentimento LGPD (ADR-018 D10).",
+        "parameters": [{ "$ref": "#/components/parameters/Host" }],
+        "responses": {
+          "200": {
+            "description": "Site resolvido.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Site" } } }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" },
+          "404": { "$ref": "#/components/responses/SiteDesconhecido" }
+        }
+      }
+    },
+    "/rotas": {
+      "get": {
+        "tags": ["Rotas"],
+        "operationId": "resolverRota",
+        "summary": "Resolve um caminho do site",
+        "description": "Usado pela rota única `[...caminho]` do site. Devolve a página, ou um redirecionamento quando o caminho mudou (ADR-014 D4) ou é um agrupador (ADR-014 D5: navega para o primeiro filho). Caminho inexistente → 404.\n\nCaminhos de módulos (`/noticias/...`) não passam por aqui: têm recursos próprios.",
+        "parameters": [
+          { "$ref": "#/components/parameters/Host" },
+          {
+            "name": "caminho",
+            "in": "query",
+            "required": true,
+            "description": "Caminho pedido pelo visitante, começando com `/`, sem query string. A home é `/`.",
+            "schema": { "type": "string", "maxLength": 700, "example": "/institucional/sobre" }
+          },
+          { "$ref": "#/components/parameters/Previa" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Caminho resolvido.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Rota" },
+                "examples": {
+                  "pagina": {
+                    "summary": "Página",
+                    "value": {
+                      "tipo": "pagina",
+                      "pagina": {
+                        "id": "0192a3b4-0000-7000-8000-000000000001",
+                        "tipo": "pagina",
+                        "titulo": "Sobre nós",
+                        "subtitulo": "Mais de 40 anos formando profissionais",
+                        "apresentacaoHtml": "<p>Somos uma instituição...</p>",
+                        "caminho": "/institucional/sobre",
+                        "seo": {
+                          "titulo": "Sobre nós | Faculdade Exemplo",
+                          "descricao": "Conheça a história da Faculdade Exemplo.",
+                          "urlCanonica": "https://www.exemplo.com.br/institucional/sobre",
+                          "indexar": true
+                        },
+                        "migalhas": [
+                          { "titulo": "Institucional", "url": "/institucional" },
+                          { "titulo": "Sobre nós", "url": "/institucional/sobre" }
+                        ],
+                        "blocos": [],
+                        "atualizadaEmUtc": "2026-10-10T14:32:00Z"
+                      }
+                    }
+                  },
+                  "redirecionamento": {
+                    "summary": "Caminho antigo",
+                    "value": { "tipo": "redirecionamento", "destino": "/institucional/quem-somos", "permanente": true }
+                  }
+                }
+              }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "400": { "$ref": "#/components/responses/RequisicaoInvalida" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado" }
+        }
+      }
+    },
+    "/menus/{chave}": {
+      "get": {
+        "tags": ["Menus"],
+        "operationId": "obterMenu",
+        "summary": "Árvore de um menu pela chave",
+        "description": "Chaves criadas pelo seed: `topo`, `principal`, `rodape` (ADR-014 D2). Só entram páginas disponíveis do tipo Página, Link ou Agrupador; Página Oculta nunca aparece. Menu indisponível → 404.",
+        "parameters": [
+          { "$ref": "#/components/parameters/Host" },
+          {
+            "name": "chave",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 50, "example": "principal" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menu com itens em ordem, até 3 níveis.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Menu" } } }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado" }
+        }
+      }
+    },
+    "/noticias": {
+      "get": {
+        "tags": ["Notícias"],
+        "operationId": "listarNoticias",
+        "summary": "Notícias no ar, da mais recente para a mais antiga",
+        "description": "Só notícias com situação \"No ar\" (disponível, publicação ≤ agora, sem expiração vencida).",
+        "parameters": [
+          { "$ref": "#/components/parameters/Host" },
+          { "$ref": "#/components/parameters/Pagina" },
+          { "$ref": "#/components/parameters/Tamanho" },
+          { "name": "categoria", "in": "query", "description": "Slug da categoria.", "schema": { "type": "string", "maxLength": 200 } },
+          { "name": "tag", "in": "query", "description": "Slug da tag.", "schema": { "type": "string", "maxLength": 200 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Página da lista.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ListaNoticias" } } }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "400": { "$ref": "#/components/responses/RequisicaoInvalida" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" },
+          "404": {
+            "description": "Categoria ou tag informada não existe (ou categoria inativa).",
+            "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+          }
+        }
+      }
+    },
+    "/noticias/categorias": {
+      "get": {
+        "tags": ["Notícias"],
+        "operationId": "listarCategoriasNoticia",
+        "summary": "Categorias ativas com notícias no ar",
+        "parameters": [{ "$ref": "#/components/parameters/Host" }],
+        "responses": {
+          "200": {
+            "description": "Categorias em ordem alfabética.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": {
+              "application/json": {
+                "schema": { "type": "array", "items": { "$ref": "#/components/schemas/CategoriaNoticia" } }
+              }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" }
+        }
+      }
+    },
+    "/noticias/{slug}": {
+      "get": {
+        "tags": ["Notícias"],
+        "operationId": "obterNoticia",
+        "summary": "Notícia completa pelo slug",
+        "parameters": [
+          { "$ref": "#/components/parameters/Host" },
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "maxLength": 200, "example": "vestibular-2027-inscricoes-abertas" }
+          },
+          { "$ref": "#/components/parameters/Previa" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notícia no ar (ou indisponível/agendada, com prévia válida).",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Noticia" } } }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado" }
+        }
+      }
+    },
+    "/banners": {
+      "get": {
+        "tags": ["Banners"],
+        "operationId": "listarBanners",
+        "summary": "Banners no ar de uma posição, na ordem do CMS",
+        "description": "Banner de imagem sem imagem não é exibido (ADR-015 D8): até o módulo de Mídia existir, só banners de vídeo aparecem aqui.",
+        "parameters": [
+          { "$ref": "#/components/parameters/Host" },
+          { "name": "posicao", "in": "query", "required": true, "schema": { "$ref": "#/components/schemas/PosicaoBanner" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Banners no ar.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": {
+              "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Banner" } } }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "400": { "$ref": "#/components/responses/RequisicaoInvalida" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" }
+        }
+      }
+    },
+    "/sitemap": {
+      "get": {
+        "tags": ["SEO"],
+        "operationId": "obterSitemap",
+        "summary": "URLs canônicas do site para o sitemap.xml",
+        "description": "Só publicações cuja URL canônica é deste site (ADR-011): conteúdo republicado de outro site fica de fora. Com indexação desligada nas configurações, a lista vem vazia.",
+        "parameters": [{ "$ref": "#/components/parameters/Host" }],
+        "responses": {
+          "200": {
+            "description": "Entradas do sitemap.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": {
+              "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/EntradaSitemap" } } }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" }
+        }
+      }
+    },
+    "/formularios/{id}": {
+      "get": {
+        "tags": ["Formulários"],
+        "operationId": "obterFormulario",
+        "summary": "Definição pública de um formulário ativo",
+        "description": "Só campos disponíveis, na ordem do CMS (ADR-017, ADR-020 D2). Formulário inativo ou inexistente → 404. Os tipos e configurações seguem o catálogo do Domain (`Domain/Formularios/Tipos`).",
+        "parameters": [
+          { "$ref": "#/components/parameters/Host" },
+          { "$ref": "#/components/parameters/FormularioId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Formulário.",
+            "headers": { "ETag": { "$ref": "#/components/headers/ETag" } },
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Formulario" } } }
+          },
+          "304": { "$ref": "#/components/responses/NaoModificado" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado" }
+        }
+      }
+    },
+    "/formularios/{id}/respostas": {
+      "post": {
+        "tags": ["Formulários"],
+        "operationId": "enviarResposta",
+        "summary": "Envia uma resposta de formulário",
+        "description": "Chamado pela Astro Action do site, nunca pelo navegador (ADR-020 D4). Valida com o `ValidadorResposta` e grava pelo caso de uso `EnviarResposta`, no site resolvido pelo host. Chave desconhecida é descartada; texto com HTML é recusado. Envio idêntico repetido em janela curta devolve 201 sem gravar de novo (ADR-020 D9).",
+        "parameters": [
+          { "$ref": "#/components/parameters/Host" },
+          { "$ref": "#/components/parameters/FormularioId" },
+          {
+            "name": "X-Axys-Ip-Visitante",
+            "in": "header",
+            "required": true,
+            "description": "IP do visitante. Usado no limite de envios e gravado só como hash (ADR-020 D8).",
+            "schema": { "type": "string", "maxLength": 45 }
+          },
+          {
+            "name": "X-Axys-Navegador",
+            "in": "header",
+            "required": false,
+            "description": "User-Agent do visitante (gravado com até 300 caracteres).",
+            "schema": { "type": "string", "maxLength": 300 }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EnvioResposta" },
+              "example": {
+                "valores": {
+                  "nome": "Maria da Silva",
+                  "e-mail": "maria@exemplo.com.br",
+                  "assunto": "Secretaria",
+                  "interesses": ["Graduação", "Pós-graduação"],
+                  "aceite-da-politica": "sim"
+                },
+                "paginaOrigem": "/fale-conosco"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Resposta registrada.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RespostaAceita" } } }
+          },
+          "400": { "$ref": "#/components/responses/RequisicaoInvalida" },
+          "401": { "$ref": "#/components/responses/NaoAutenticado" },
+          "404": { "$ref": "#/components/responses/NaoEncontrado" },
+          "413": {
+            "description": "Corpo acima do limite.",
+            "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+          },
+          "422": {
+            "description": "Valores recusados pela validação; nada foi gravado.",
+            "content": {
+              "application/problem+json": {
+                "schema": { "$ref": "#/components/schemas/ProblemaValidacao" },
+                "example": {
+                  "type": "https://axys.com.br/problemas/validacao",
+                  "title": "Há campos para corrigir.",
+                  "status": 422,
+                  "codigo": "formularios.resposta.invalida",
+                  "errors": {
+                    "e-mail": ["Informe um e-mail válido (ex.: nome@empresa.com.br)."],
+                    "mensagem": ["Não use código ou HTML neste campo."]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limite de envios atingido para o visitante ou o formulário.",
+            "headers": {
+              "Retry-After": { "description": "Segundos até poder tentar de novo.", "schema": { "type": "integer" } }
+            },
+            "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {
+    "conteudoAlterado": {
+      "post": {
+        "summary": "Aviso de publicação (CMS → site)",
+        "description": "Enviado pelo CMS ao endpoint cadastrado de cada consumidor quando conteúdo do site muda (ADR-019 D8). O site invalida o cache das tags recebidas. Reenvio com retry em caso de falha; entrega pode repetir (idempotente por `id`).",
+        "parameters": [
+          {
+            "name": "X-Axys-Assinatura",
+            "in": "header",
+            "required": true,
+            "description": "`sha256=` + HMAC-SHA256 do corpo com o segredo do consumidor.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AvisoConteudo" } } }
+        },
+        "responses": {
+          "204": { "description": "Recebido." },
+          "401": { "description": "Assinatura inválida; o CMS não reenvia." }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "chaveConsumidor": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Axys-Chave",
+        "description": "Chave do consumidor (cada site público). Gravada como hash na API; nunca vai ao navegador."
+      }
+    },
+    "parameters": {
+      "Host": {
+        "name": "X-Axys-Host",
+        "in": "header",
+        "required": true,
+        "description": "Host da requisição do visitante (sem porta), resolvido pelos hosts cadastrados do site.",
+        "schema": { "type": "string", "maxLength": 253, "example": "www.exemplo.com.br" }
+      },
+      "Previa": {
+        "name": "X-Axys-Previa",
+        "in": "header",
+        "required": false,
+        "description": "Token assinado de pré-visualização gerado pelo CMS (curta duração, um conteúdo). Com ele, a API devolve o conteúdo mesmo indisponível ou agendado. O site responde com `noindex` e sem cache (ADR-019 D9).",
+        "schema": { "type": "string", "maxLength": 2000 }
+      },
+      "Pagina": {
+        "name": "pagina",
+        "in": "query",
+        "description": "Página da lista, a partir de 1.",
+        "schema": { "type": "integer", "minimum": 1, "default": 1 }
+      },
+      "Tamanho": {
+        "name": "tamanho",
+        "in": "query",
+        "description": "Itens por página.",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 50, "default": 12 }
+      },
+      "FormularioId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      }
+    },
+    "headers": {
+      "ETag": {
+        "description": "Versão da representação. Reenvie em `If-None-Match` para receber 304.",
+        "schema": { "type": "string" }
+      }
+    },
+    "responses": {
+      "NaoModificado": { "description": "Não mudou desde o `If-None-Match` informado." },
+      "NaoAutenticado": {
+        "description": "Chave ausente, inválida ou revogada.",
+        "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+      },
+      "SiteDesconhecido": {
+        "description": "O host informado não pertence a nenhum site ativo (`site.host.desconhecido`).",
+        "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+      },
+      "NaoEncontrado": {
+        "description": "Não existe, não está no ar, ou o host não pertence a nenhum site ativo.",
+        "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+      },
+      "RequisicaoInvalida": {
+        "description": "Parâmetro ou corpo malformado.",
+        "content": { "application/problem+json": { "schema": { "$ref": "#/components/schemas/Problema" } } }
+      }
+    },
+    "schemas": {
+      "Problema": {
+        "type": "object",
+        "description": "ProblemDetails (RFC 9457). Nunca traz stack trace, SQL ou configuração.",
+        "required": ["title", "status", "codigo"],
+        "properties": {
+          "type": { "type": "string" },
+          "title": { "type": "string", "description": "Mensagem pt-BR para o visitante." },
+          "status": { "type": "integer" },
+          "codigo": { "type": "string", "description": "Código estável `modulo.campo.problema`.", "example": "rota.nao-encontrada" },
+          "traceId": { "type": "string" }
+        }
+      },
+      "ProblemaValidacao": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Problema" },
+          {
+            "type": "object",
+            "required": ["errors"],
+            "properties": {
+              "errors": {
+                "type": "object",
+                "description": "Chave do campo → mensagens pt-BR.",
+                "additionalProperties": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        ]
+      },
+      "Link": {
+        "type": "object",
+        "required": ["url", "novaJanela", "externo"],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Caminho deste site (`/...`) ou endereço absoluto (`https:`, `http:`, `mailto:`, `tel:`)."
+          },
+          "novaJanela": { "type": "boolean" },
+          "externo": { "type": "boolean", "description": "Verdadeiro quando não é um caminho deste site." }
+        }
+      },
+      "Imagem": {
+        "type": "object",
+        "description": "Reservado. Entra com o módulo de Mídia (ADR-007, decisão B5); até lá os campos de imagem vêm `null`.",
+        "required": ["url", "alt", "largura", "altura", "variantes"],
+        "properties": {
+          "url": { "type": "string", "description": "Original." },
+          "alt": { "type": "string" },
+          "largura": { "type": "integer" },
+          "altura": { "type": "integer" },
+          "variantes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["url", "largura", "formato"],
+              "properties": {
+                "url": { "type": "string" },
+                "largura": { "type": "integer" },
+                "formato": { "type": "string", "enum": ["avif", "webp", "jpeg", "png"] }
+              }
+            }
+          }
+        }
+      },
+      "Seo": {
+        "type": "object",
+        "description": "SEO efetivo, já resolvido pela API.",
+        "required": ["titulo", "urlCanonica", "indexar"],
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "description": "Conteúdo final do `<title>` (SEO título do conteúdo ou título, aplicado ao modelo das configurações)."
+          },
+          "descricao": {
+            "type": ["string", "null"],
+            "description": "SEO descrição do conteúdo ou, na falta, a meta description das configurações."
+          },
+          "urlCanonica": {
+            "type": "string",
+            "description": "URL absoluta. Override do conteúdo; senão, a publicação no site de origem (ADR-011); senão, esta."
+          },
+          "indexar": {
+            "type": "boolean",
+            "description": "Falso quando a indexação do site está desligada ou em prévia."
+          }
+        }
+      },
+      "Migalha": {
+        "type": "object",
+        "required": ["titulo", "url"],
+        "properties": {
+          "titulo": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      },
+      "Bloco": {
+        "type": "object",
+        "description": "Reservado (ADR-019 D10, decisão A2). Cada tipo será um objeto discriminado por `tipo`, com schema próprio; tipo novo é mudança aditiva. Hoje a lista vem sempre vazia.",
+        "required": ["tipo"],
+        "properties": { "tipo": { "type": "string" } },
+        "additionalProperties": true
+      },
+      "ListaPaginada": {
+        "type": "object",
+        "required": ["pagina", "tamanho", "total", "totalPaginas"],
+        "properties": {
+          "pagina": { "type": "integer" },
+          "tamanho": { "type": "integer" },
+          "total": { "type": "integer" },
+          "totalPaginas": { "type": "integer" }
+        }
+      },
+      "Site": {
+        "type": "object",
+        "required": ["id", "nome", "cultura", "urlBase", "seo", "indexacao", "contato", "redesSociais", "rastreamento"],
+        "properties": {
+          "id": { "type": "integer" },
+          "nome": { "type": "string", "example": "Faculdade Exemplo" },
+          "cultura": { "type": "string", "example": "pt-BR" },
+          "urlBase": {
+            "type": "string",
+            "description": "Esquema + host canônico. Requisição por outro host do site → o site redireciona 301 para cá.",
+            "example": "https://www.exemplo.com.br"
+          },
+          "seo": {
+            "type": "object",
+            "required": ["modeloTitulo"],
+            "properties": {
+              "nomeSite": { "type": ["string", "null"] },
+              "modeloTitulo": { "type": "string", "example": "{pagina} | {site}" },
+              "metaDescription": { "type": ["string", "null"] }
+            }
+          },
+          "indexacao": {
+            "type": "object",
+            "required": ["permitir"],
+            "properties": {
+              "permitir": { "type": "boolean" },
+              "verificacaoGoogle": { "type": ["string", "null"] },
+              "verificacaoBing": { "type": ["string", "null"] }
+            }
+          },
+          "contato": {
+            "type": "object",
+            "required": ["telefones"],
+            "properties": {
+              "email": { "type": ["string", "null"], "format": "email" },
+              "telefones": {
+                "type": "array",
+                "description": "Telefones do site (todos os sites ou vinculados a este), na ordem do CMS.",
+                "items": { "$ref": "#/components/schemas/Telefone" }
+              }
+            }
+          },
+          "redesSociais": {
+            "type": "object",
+            "properties": {
+              "instagram": { "type": ["string", "null"] },
+              "facebook": { "type": ["string", "null"] },
+              "linkedin": { "type": ["string", "null"] },
+              "youtube": { "type": ["string", "null"] },
+              "tiktok": { "type": ["string", "null"] },
+              "x": { "type": ["string", "null"] }
+            }
+          },
+          "rastreamento": {
+            "type": "object",
+            "description": "Usar só depois do consentimento LGPD.",
+            "properties": {
+              "ga4": { "type": ["string", "null"], "example": "G-ABC123XYZ" },
+              "gtm": { "type": ["string", "null"], "example": "GTM-ABCD12" },
+              "metaPixelId": { "type": ["string", "null"] },
+              "metaAppId": { "type": ["string", "null"] },
+              "metaVerificacaoDominio": { "type": ["string", "null"] }
+            }
+          }
+        }
+      },
+      "Telefone": {
+        "type": "object",
+        "required": ["tipo", "numero", "numeroFormatado", "exibirNoRodape", "exibirNoBalaoWhatsApp"],
+        "properties": {
+          "tipo": { "type": "string", "enum": ["fixo", "celular", "whatsapp"] },
+          "numero": { "type": "string", "description": "E.164.", "example": "+5567999999999" },
+          "numeroFormatado": { "type": "string", "example": "(67) 99999-9999" },
+          "rotulo": { "type": ["string", "null"], "example": "Secretaria" },
+          "exibirNoRodape": { "type": "boolean" },
+          "exibirNoBalaoWhatsApp": { "type": "boolean" },
+          "linkWhatsApp": {
+            "type": ["string", "null"],
+            "description": "`https://wa.me/...` quando o tipo é whatsapp."
+          }
+        }
+      },
+      "Rota": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/RotaPagina" },
+          { "$ref": "#/components/schemas/RotaRedirecionamento" }
+        ],
+        "discriminator": {
+          "propertyName": "tipo",
+          "mapping": {
+            "pagina": "#/components/schemas/RotaPagina",
+            "redirecionamento": "#/components/schemas/RotaRedirecionamento"
+          }
+        }
+      },
+      "RotaPagina": {
+        "type": "object",
+        "required": ["tipo", "pagina"],
+        "properties": {
+          "tipo": { "type": "string", "const": "pagina" },
+          "pagina": { "$ref": "#/components/schemas/Pagina" }
+        }
+      },
+      "RotaRedirecionamento": {
+        "type": "object",
+        "required": ["tipo", "destino", "permanente"],
+        "properties": {
+          "tipo": { "type": "string", "const": "redirecionamento" },
+          "destino": { "type": "string", "description": "Caminho deste site ou URL absoluta." },
+          "permanente": {
+            "type": "boolean",
+            "description": "Verdadeiro (301) para caminho antigo; falso (302) para agrupador, cujo primeiro filho pode mudar."
+          }
+        }
+      },
+      "Pagina": {
+        "type": "object",
+        "required": ["id", "tipo", "titulo", "caminho", "seo", "migalhas", "blocos", "atualizadaEmUtc"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "tipo": {
+            "type": "string",
+            "enum": ["pagina", "oculta"],
+            "description": "Oculta responde pelo caminho, mas não aparece em menus."
+          },
+          "titulo": { "type": "string" },
+          "subtitulo": { "type": ["string", "null"] },
+          "apresentacaoHtml": {
+            "type": ["string", "null"],
+            "description": "HTML já sanitizado no servidor (ADR-014 D6). Renderizar só pelo `<AxysHtml/>`."
+          },
+          "caminho": { "type": "string" },
+          "seo": { "$ref": "#/components/schemas/Seo" },
+          "migalhas": {
+            "type": "array",
+            "description": "Do primeiro nível do menu estrutural até esta página. Vazia fora do menu estrutural.",
+            "items": { "$ref": "#/components/schemas/Migalha" }
+          },
+          "blocos": { "type": "array", "items": { "$ref": "#/components/schemas/Bloco" } },
+          "atualizadaEmUtc": { "type": "string", "format": "date-time" },
+          "previa": { "type": "boolean", "description": "Presente e verdadeiro só quando servida com token de prévia." }
+        }
+      },
+      "Menu": {
+        "type": "object",
+        "required": ["chave", "nome", "local", "itens"],
+        "properties": {
+          "chave": { "type": "string" },
+          "nome": { "type": "string" },
+          "local": { "type": "string", "enum": ["topo", "principal", "rodape"], "description": "Indicativo para o tema." },
+          "itens": { "type": "array", "items": { "$ref": "#/components/schemas/ItemMenu" } }
+        }
+      },
+      "ItemMenu": {
+        "type": "object",
+        "required": ["id", "tipo", "titulo", "filhos"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "tipo": { "type": "string", "enum": ["pagina", "link", "agrupador"] },
+          "titulo": { "type": "string" },
+          "link": {
+            "oneOf": [{ "$ref": "#/components/schemas/Link" }, { "type": "null" }],
+            "description": "Agrupador aponta para o primeiro filho; agrupador sem filhos vem com `null`."
+          },
+          "filhos": { "type": "array", "items": { "$ref": "#/components/schemas/ItemMenu" } }
+        }
+      },
+      "CategoriaNoticia": {
+        "type": "object",
+        "required": ["nome", "slug", "url"],
+        "properties": {
+          "nome": { "type": "string" },
+          "slug": { "type": "string" },
+          "url": { "type": "string", "example": "/noticias?categoria=institucional" }
+        }
+      },
+      "TagNoticia": {
+        "type": "object",
+        "required": ["nome", "slug", "url"],
+        "properties": {
+          "nome": { "type": "string" },
+          "slug": { "type": "string" },
+          "url": { "type": "string", "example": "/noticias?tag=vestibular" }
+        }
+      },
+      "NoticiaResumo": {
+        "type": "object",
+        "required": ["id", "slug", "url", "titulo", "publicadaEmUtc", "categoria"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "slug": { "type": "string" },
+          "url": { "type": "string", "example": "/noticias/vestibular-2027-inscricoes-abertas" },
+          "titulo": { "type": "string" },
+          "resumo": { "type": ["string", "null"] },
+          "publicadaEmUtc": { "type": "string", "format": "date-time" },
+          "categoria": { "$ref": "#/components/schemas/CategoriaNoticia" },
+          "imagem": { "oneOf": [{ "$ref": "#/components/schemas/Imagem" }, { "type": "null" }] }
+        }
+      },
+      "Noticia": {
+        "allOf": [
+          { "$ref": "#/components/schemas/NoticiaResumo" },
+          {
+            "type": "object",
+            "required": ["corpoHtml", "tags", "seo", "atualizadaEmUtc"],
+            "properties": {
+              "corpoHtml": {
+                "type": ["string", "null"],
+                "description": "HTML já sanitizado no servidor. Renderizar só pelo `<AxysHtml/>`."
+              },
+              "tags": { "type": "array", "items": { "$ref": "#/components/schemas/TagNoticia" } },
+              "seo": { "$ref": "#/components/schemas/Seo" },
+              "atualizadaEmUtc": { "type": "string", "format": "date-time" },
+              "previa": { "type": "boolean" }
+            }
+          }
+        ]
+      },
+      "ListaNoticias": {
+        "allOf": [
+          { "$ref": "#/components/schemas/ListaPaginada" },
+          {
+            "type": "object",
+            "required": ["itens", "filtro"],
+            "properties": {
+              "itens": { "type": "array", "items": { "$ref": "#/components/schemas/NoticiaResumo" } },
+              "filtro": {
+                "type": "object",
+                "description": "Eco do filtro com os nomes, para o título da página de categoria ou tag.",
+                "properties": {
+                  "categoria": { "oneOf": [{ "$ref": "#/components/schemas/CategoriaNoticia" }, { "type": "null" }] },
+                  "tag": { "oneOf": [{ "$ref": "#/components/schemas/TagNoticia" }, { "type": "null" }] }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PosicaoBanner": {
+        "type": "string",
+        "enum": ["principal", "rodape", "modal"]
+      },
+      "Banner": {
+        "type": "object",
+        "required": ["id", "tipo", "titulo", "tempoTransicaoSegundos", "exibirSoPrimeiroAcesso"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "tipo": { "type": "string", "enum": ["imagem", "video"] },
+          "titulo": { "type": "string", "description": "Uso interno e texto alternativo." },
+          "chamadaPrincipal": { "type": ["string", "null"], "description": "Texto puro; quebras de linha como `\\n`." },
+          "chamadaSecundaria": { "type": ["string", "null"] },
+          "link": { "oneOf": [{ "$ref": "#/components/schemas/Link" }, { "type": "null" }] },
+          "textoBotao": { "type": ["string", "null"], "description": "Só existe com link." },
+          "video": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["provedor", "id", "url"],
+                "properties": {
+                  "provedor": { "type": "string", "enum": ["youtube", "vimeo"] },
+                  "id": { "type": "string" },
+                  "url": { "type": "string" }
+                }
+              },
+              { "type": "null" }
+            ]
+          },
+          "imagem": {
+            "description": "Reservado até a Mídia (ADR-015 D8).",
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["desktop"],
+                "properties": {
+                  "desktop": { "$ref": "#/components/schemas/Imagem" },
+                  "mobile": { "oneOf": [{ "$ref": "#/components/schemas/Imagem" }, { "type": "null" }] }
+                }
+              },
+              { "type": "null" }
+            ]
+          },
+          "tempoTransicaoSegundos": { "type": "integer", "minimum": 1, "maximum": 60 },
+          "exibirSoPrimeiroAcesso": { "type": "boolean", "description": "Só na posição modal." }
+        }
+      },
+      "EntradaSitemap": {
+        "type": "object",
+        "required": ["url", "ultimaAlteracaoUtc", "tipo"],
+        "properties": {
+          "url": { "type": "string", "description": "URL absoluta canônica." },
+          "ultimaAlteracaoUtc": { "type": "string", "format": "date-time" },
+          "tipo": { "type": "string", "enum": ["pagina", "noticia"] }
+        }
+      },
+      "Formulario": {
+        "type": "object",
+        "required": ["id", "textoBotao", "mensagemSucesso", "campos"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "textoBotao": { "type": "string", "example": "Enviar" },
+          "mensagemSucesso": { "type": "string", "example": "Recebemos sua mensagem. Responderemos em breve." },
+          "campos": { "type": "array", "items": { "$ref": "#/components/schemas/CampoFormulario" } }
+        }
+      },
+      "CampoFormulario": {
+        "type": "object",
+        "description": "`chave` é o nome do campo no envio. `configuracao` segue o tipo (schemas `Config*`). Os tipos `titulo-secao` e `texto-informativo` não recebem resposta. O tipo `arquivo` não aparece até a Mídia (ADR-017 D3).",
+        "required": ["chave", "tipo", "rotulo", "obrigatorio", "largura", "recebeResposta", "configuracao"],
+        "properties": {
+          "chave": { "type": "string", "maxLength": 60, "example": "e-mail" },
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "texto-curto", "texto-longo", "email", "telefone", "numero", "data", "lista", "escolha-unica",
+              "multipla-escolha", "aceite", "titulo-secao", "texto-informativo"
+            ]
+          },
+          "rotulo": { "type": "string" },
+          "ajuda": { "type": ["string", "null"] },
+          "obrigatorio": { "type": "boolean" },
+          "largura": { "type": "string", "enum": ["inteira", "meia"] },
+          "recebeResposta": { "type": "boolean" },
+          "configuracao": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/ConfigTextoCurto" },
+              { "$ref": "#/components/schemas/ConfigTextoLongo" },
+              { "$ref": "#/components/schemas/ConfigEmail" },
+              { "$ref": "#/components/schemas/ConfigTelefone" },
+              { "$ref": "#/components/schemas/ConfigNumero" },
+              { "$ref": "#/components/schemas/ConfigData" },
+              { "$ref": "#/components/schemas/ConfigLista" },
+              { "$ref": "#/components/schemas/ConfigOpcoes" },
+              { "$ref": "#/components/schemas/ConfigMultiplaEscolha" },
+              { "$ref": "#/components/schemas/ConfigAceite" },
+              { "$ref": "#/components/schemas/ConfigTextoInformativo" },
+              { "$ref": "#/components/schemas/ConfigVazia" }
+            ]
+          }
+        }
+      },
+      "ConfigTextoCurto": {
+        "type": "object",
+        "properties": {
+          "placeholder": { "type": ["string", "null"] },
+          "minimo": { "type": ["integer", "null"] },
+          "maximo": { "type": ["integer", "null"], "maximum": 500 }
+        }
+      },
+      "ConfigTextoLongo": {
+        "type": "object",
+        "properties": {
+          "placeholder": { "type": ["string", "null"] },
+          "maximo": { "type": ["integer", "null"], "maximum": 5000 },
+          "linhas": { "type": "integer", "minimum": 2, "maximum": 20, "default": 4 }
+        }
+      },
+      "ConfigEmail": {
+        "type": "object",
+        "properties": { "placeholder": { "type": ["string", "null"] } }
+      },
+      "ConfigTelefone": {
+        "type": "object",
+        "properties": { "soCelular": { "type": "boolean" } }
+      },
+      "ConfigNumero": {
+        "type": "object",
+        "properties": {
+          "minimo": { "type": ["number", "null"] },
+          "maximo": { "type": ["number", "null"] },
+          "casasDecimais": { "type": "integer", "minimum": 0, "maximum": 4 }
+        }
+      },
+      "ConfigData": {
+        "type": "object",
+        "properties": {
+          "minima": { "type": ["string", "null"], "format": "date" },
+          "maxima": { "type": ["string", "null"], "format": "date" }
+        }
+      },
+      "ConfigLista": {
+        "type": "object",
+        "required": ["opcoes"],
+        "properties": {
+          "opcoes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 100 },
+          "textoPrimeiraLinha": { "type": ["string", "null"], "example": "Selecione" }
+        }
+      },
+      "ConfigOpcoes": {
+        "type": "object",
+        "description": "Escolha única.",
+        "required": ["opcoes"],
+        "properties": {
+          "opcoes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 100 }
+        }
+      },
+      "ConfigMultiplaEscolha": {
+        "type": "object",
+        "required": ["opcoes"],
+        "properties": {
+          "opcoes": { "type": "array", "items": { "type": "string" }, "minItems": 1, "maxItems": 100 },
+          "minimo": { "type": ["integer", "null"] },
+          "maximo": { "type": ["integer", "null"] }
+        }
+      },
+      "ConfigAceite": {
+        "type": "object",
+        "required": ["texto"],
+        "properties": {
+          "texto": { "type": "string", "example": "Li e aceito a política de privacidade." },
+          "linkPolitica": { "type": ["string", "null"] }
+        }
+      },
+      "ConfigTextoInformativo": {
+        "type": "object",
+        "required": ["texto"],
+        "properties": { "texto": { "type": "string", "description": "Texto puro." } }
+      },
+      "ConfigVazia": {
+        "type": "object",
+        "description": "Título de seção (o texto é o rótulo).",
+        "additionalProperties": false
+      },
+      "EnvioResposta": {
+        "type": "object",
+        "required": ["valores"],
+        "properties": {
+          "valores": {
+            "type": "object",
+            "description": "Chave do campo → valor. Múltipla escolha envia lista. Data em `aaaa-mm-dd`; número com ponto decimal; aceite marcado como `sim`.",
+            "additionalProperties": {
+              "oneOf": [
+                { "type": "string", "maxLength": 5000 },
+                { "type": "array", "maxItems": 100, "items": { "type": "string", "maxLength": 200 } }
+              ]
+            }
+          },
+          "paginaOrigem": {
+            "type": ["string", "null"],
+            "maxLength": 500,
+            "description": "Caminho da página onde o formulário estava."
+          },
+          "desafio": {
+            "type": ["string", "null"],
+            "description": "Token do desafio antispam (Turnstile), quando o site o exigir. Verificado pela API (ADR-020 D7)."
+          }
+        }
+      },
+      "RespostaAceita": {
+        "type": "object",
+        "required": ["mensagemSucesso"],
+        "properties": { "mensagemSucesso": { "type": "string" } }
+      },
+      "AvisoConteudo": {
+        "type": "object",
+        "required": ["id", "evento", "siteId", "tags", "ocorridoEmUtc"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "description": "Idempotência da entrega." },
+          "evento": { "type": "string", "enum": ["conteudo.alterado"] },
+          "siteId": { "type": "integer" },
+          "tags": {
+            "type": "array",
+            "description": "Tags de cache afetadas.",
+            "items": { "type": "string" },
+            "example": ["site:1", "pagina:0192a3b4-0000-7000-8000-000000000001", "menus"]
+          },
+          "ocorridoEmUtc": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

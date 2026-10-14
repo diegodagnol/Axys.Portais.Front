@@ -1,0 +1,35 @@
+---
+import Section from './Section.astro';
+import ImagePlaceholder from './ImagePlaceholder.astro';
+import { location } from '../data/home';
+
+const { site } = Astro.locals;
+const phones = site.contato.telefones;
+---
+
+<Section source={location.source} title="Onde estamos" class="location">
+  <div class="two-columns">
+    <ImagePlaceholder label="Mapa (incorporar após o consentimento de cookies)" ratio="4 / 3" />
+    <div class="stack">
+      <p><strong>Endereço</strong><br />{location.address}</p>
+      <p>
+        <strong>Contato</strong>
+        {phones.map((phone) => (
+          <>
+            <br />
+            <a href={phone.linkWhatsApp ?? `tel:${phone.numero}`}>{phone.rotulo ?? 'Telefone'}: {phone.numeroFormatado}</a>
+          </>
+        ))}
+      </p>
+      <p>
+        <strong>Horário de funcionamento</strong>
+        {location.openingHours.map((line) => (
+          <>
+            <br />
+            {line}
+          </>
+        ))}
+      </p>
+    </div>
+  </div>
+</Section>
