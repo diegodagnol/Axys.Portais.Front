@@ -10,6 +10,8 @@ npm create axys-site@latest site-cliente -- --yes             # tudo no padrão 
 ```
 
 O `--` separa as opções do inicializador das do npm. No monorepo, sem publicar: `npm run create-site -- <pasta> --base minima`.
+Passo a passo para iniciar o site de um cliente, antes e depois da publicação: seção "Criando um site novo" do
+README da raiz.
 
 | Opção | Efeito |
 | --- | --- |

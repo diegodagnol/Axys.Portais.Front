@@ -46,6 +46,56 @@ No Claude Code, a partir do repositório `Axys.Portais`: configurações `front-
 | `npm run create-site -- <pasta> [--base minima]` | Roda o `create-axys-site` do monorepo, sem publicar |
 | `npm run test:create` | Gera um site de cada base fora do monorepo, com o `@axys/portal` empacotado (`npm pack`), e roda `npm install` e `build` em cada um |
 
+## Criando um site novo
+
+O site de um cliente sai do `create-axys-site`, na base **completa** (padrão) ou **mínima** (ver o README do
+pacote). Enquanto o `@axys/portal` não está publicado (etapa 4 do roteiro), há duas formas.
+
+**Dentro deste monorepo** (para testar ou experimentar): em `sites/`, o site vira workspace e o `@axys/portal`
+local é ligado sozinho.
+
+```bash
+npm run create-site -- sites/site-cliente --base minima
+npm install
+npm run mock                                  # o mock da raiz serve a mesma API
+npm run dev -w site-cliente                   # os scripts dev/build da raiz continuam no demo
+```
+
+**Em repositório próprio** (o caso real): empacote o portal e aponte o site para o arquivo, porque a versão
+`^0.1.0` ainda não existe em nenhum feed. Os caminhos são relativos à raiz do monorepo; o exemplo cria o site ao lado dela.
+
+```bash
+npm pack -w @axys/portal --pack-destination ..
+npm run create-site -- ../site-cliente --portal file:../axys-portal-0.1.0.tgz
+cd ../site-cliente
+npm install
+npm run mock
+npm run dev
+```
+
+Para atualizar o portal nesse site, gere um novo `.tgz` e rode `npm install` de novo.
+
+**Depois da publicação** (etapa 4), de qualquer pasta, com o `.npmrc` apontando o escopo `@axys` e o
+`create-axys-site` para o feed do Azure Artifacts:
+
+```bash
+npm create axys-site@latest site-cliente      # pergunta a base; sem pergunta: -- --base minima
+cd site-cliente
+npm install
+npm run mock
+npm run dev
+```
+
+As atualizações do portal passam a vir por `npm update @axys/portal`.
+
+**Depois de gerar**, em qualquer forma:
+
+1. O `.env` já aponta para o mock. Para a API de verdade, troque `AXYS_API_URL`, `AXYS_API_KEY` e
+   `AXYS_CONTACT_FORM_ID`; em servidores, use variáveis de ambiente e um `AXYS_FORM_SECRET` diferente por ambiente.
+2. Substitua o wireframe pelo design do cliente: `src/styles/wireframe.css` e os componentes. O que ainda está fixo
+   fica em `src/data/home.ts`, e as etiquetas de origem mostram o que vem do CMS e o que é do projeto.
+3. Na hospedagem (atrás do IIS), liste os hosts do cliente em `security.allowedDomains` no `astro.config.mjs`.
+
 ## Páginas
 
 | Rota | Conteúdo |
