@@ -134,10 +134,32 @@ Continuam as P1 a P8 do contrato.
 | P12 | Com cache de página, o carimbo de tempo do formulário fica congelado no HTML: cache curto em páginas com formulário. |
 | P13 | Atrás do IIS, conferir se `clientAddress` recebe o IP do visitante e não o do proxy. |
 
+## Roteiro: pacote `@axys/portal` e inicializador `create-axys-site`
+
+Este repositório evolui para o monorepo de front-end do ADR-018, em etapas verificáveis:
+
+| Etapa | Entrega | Pronto quando |
+| --- | --- | --- |
+| 1. Pacote | npm workspaces: `packages/portal` (`@axys/portal`) + `sites/demo` (este case). O pacote expõe a integração `axysPortal()` (middleware, rotas de sitemap/robots, variáveis `AXYS_*`, tipos de `Astro.locals`) e componentes/funções por caminhos estáveis. `.astro` como fonte; `.ts` compilado | O demo roda e builda igual, sem `src/portal/` |
+| 2. Inicializador | `packages/create-axys-site`: `npm create axys-site@latest <nome>`. O template é o próprio demo | No CI, gerar um site de cada base e passar em `check` e `build` |
+| 3. Qualidade | Changesets (versão e changelog; maior casada com a API), Vitest no pacote, Playwright no demo, GitHub Actions | Pipeline verde a cada mudança no pacote |
+| 4. Publicação | Azure Artifacts, escopo `@axys` (não publicar no repositório pessoal) | Instalar o pacote e criar um site a partir do feed |
+
+**Bases do inicializador** (decidido em 14/10/2026):
+
+| Base | O que vem |
+| --- | --- |
+| **Completa** (padrão) | Tudo deste case: home com carrossel full bleed e seções de exemplo (cartões, passos, listas, destaques, localização, perguntas frequentes), páginas do CMS, blog, contato, SEO |
+| **Mínima** | Layout, header, footer, páginas do CMS, blog, contato e SEO; home só com título e últimas notícias, sem seções de exemplo e sem carrossel. Para quando o design já chega definido |
+
+As duas saem funcionando contra a API (ou o mock) logo após `npm run dev`; o visual é o wireframe, para o time de
+front substituir pelo design do cliente.
+
 ## Próximos passos
 
-1. Decidir com produto a home editável (P9) — ela define o que entra no CMS antes do piloto.
-2. Cache HTTP com tags e o endpoint do webhook `conteudoAlterado` (ADR-019 D8).
-3. Consentimento LGPD antes de GTM, Meta Pixel e mapa incorporado (ADR-018 D10).
-4. Aplicar um design real sobre o wireframe (Tailwind + 7-1) e medir com Lighthouse CI (ADR-018 D8).
-5. Hospedagem: serviço Node atrás do IIS/ARR, `security.allowedDomains` com os hosts do cliente.
+1. Etapa 1 do roteiro acima: extrair o `@axys/portal` em workspaces.
+2. Decidir com produto a home editável (P9) — ela define o que entra no CMS antes do piloto.
+3. Cache HTTP com tags e o endpoint do webhook `conteudoAlterado` (ADR-019 D8).
+4. Consentimento LGPD antes de GTM, Meta Pixel e mapa incorporado (ADR-018 D10).
+5. Aplicar um design real sobre o wireframe (Tailwind + 7-1) e medir com Lighthouse CI (ADR-018 D8).
+6. Hospedagem: serviço Node atrás do IIS/ARR, `security.allowedDomains` com os hosts do cliente.
