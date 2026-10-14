@@ -417,6 +417,7 @@ h3 {
   text-decoration: none;
 }
 
+/* create-axys-site: início do trecho só da base completa */
 /* ---------- Topo da home: full bleed + carrossel ---------- */
 .hero {
   position: relative;
@@ -624,6 +625,8 @@ axys-carousel[data-ready] .carousel__controls {
   font-weight: 700;
 }
 
+/* create-axys-site: fim do trecho */
+
 .cta-section {
   background: var(--wf-dark);
   color: #fff;
@@ -648,6 +651,7 @@ axys-carousel[data-ready] .carousel__controls {
   font-weight: 700;
 }
 
+/* create-axys-site: início do trecho só da base completa */
 .faq__list {
   max-width: 48rem;
 }
@@ -666,6 +670,8 @@ axys-carousel[data-ready] .carousel__controls {
     color: var(--wf-muted);
   }
 }
+
+/* create-axys-site: fim do trecho */
 
 /* ---------- Conteúdo vindo do CMS (Quill 2, ADR-014 D6) ---------- */
 .cms-content {

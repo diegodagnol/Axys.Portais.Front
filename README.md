@@ -5,8 +5,10 @@ Monorepo de front-end do ADR-018 (site público em Astro), com npm workspaces:
 - **`packages/portal`** — o pacote **`@axys/portal`**: a plataforma, igual para todos os clientes (integração
   Astro, cliente da API pública de conteúdo, SEO, formulários). Ver o README do pacote.
 - **`sites/demo`** — site **white label** em **wireframe**, com a estrutura típica de um site institucional
-  simples — home com banners e CTAs, páginas de conteúdo, blog e fale conosco — consumindo o pacote. É a base do
-  futuro `create-axys-site`.
+  simples — home com banners e CTAs, páginas de conteúdo, blog e fale conosco — consumindo o pacote. É o
+  template do `create-axys-site`.
+- **`packages/create-axys-site`** — o inicializador: `npm create axys-site@latest <nome>`, com as bases
+  **completa** e **mínima**. Ver o README do pacote.
 
 A API pública de conteúdo é servida, por enquanto, por um mock (`mock/`).
 
@@ -17,8 +19,9 @@ contrato v1 em `docs/planejamento/api-publica`.
 > laranja quando está fixo no projeto porque a plataforma ainda não tem o recurso. Textos em Lorem Ipsum, sem marca
 > nem segmento: botões de chamada aparecem como **CTA / Call To Action** (componentes `Cta.astro` e `CtaSection.astro`).
 
-**Estado:** etapa 1 do roteiro concluída — o demo consome o `@axys/portal` por workspace; `astro check` sem erros,
-build ok, rotas, sitemap/robots injetados e envio de formulário verificados no navegador (14/10/2026).
+**Estado:** etapas 1 e 2 do roteiro concluídas (14/10/2026) — o demo consome o `@axys/portal` por workspace, e o
+`create-axys-site` gera sites das bases completa e mínima que passam em `astro check` e build fora do monorepo
+(`npm run test:create`), com rotas, carrossel e envio de formulário verificados no navegador.
 
 ## Como rodar
 
@@ -40,6 +43,8 @@ No Claude Code, a partir do repositório `Axys.Portais`: configurações `front-
 | `npm run mock` | Mock com dados fictícios (`mock/data/*.json`), validados contra os schemas do contrato |
 | `npm run mock:contract` | Prism sobre o contrato, para conferir aderência (dados gerados) |
 | `npm run dev` / `build` / `check` / `start` | Executam no `sites/demo` (`build` = `astro check` + build; servidor em `sites/demo/dist/server/entry.mjs`) |
+| `npm run create-site -- <pasta> [--base minima]` | Roda o `create-axys-site` do monorepo, sem publicar |
+| `npm run test:create` | Gera um site de cada base fora do monorepo, com o `@axys/portal` empacotado (`npm pack`), e roda `npm install` e `build` em cada um |
 
 ## Páginas
 
@@ -76,6 +81,8 @@ package.json                    workspaces (packages/*, sites/*) e scripts da ra
 mock/
   server.mjs                    servidor de mock (Node puro)
   data/                         site, routes, menus, news, banners, forms (dados fictícios)
+scripts/test-create.mjs         teste do inicializador (bases completa e mínima)
+packages/create-axys-site/      ← inicializador: template = sites/demo + mock; bases/minima/ sobrepõe a home
 packages/portal/                ← @axys/portal: plataforma, igual para todos os clientes
   contract/openapi-v1.json      cópia do contrato (fonte: Axys.Portais/docs/planejamento/api-publica)
   scripts/update-contract.mjs   copia o contrato do Axys.Portais
@@ -88,7 +95,7 @@ packages/portal/                ← @axys/portal: plataforma, igual para todos o
     format.ts                   formatação de datas
     components/                 AxysHead, AxysHtml, AxysForm, FormField, SpeculationRules
     routes/                     sitemap.xml.ts e robots.txt.ts (injetadas pela integração)
-sites/demo/                     ← site do cliente (aqui, white label em wireframe)
+sites/demo/                     ← site do cliente (aqui, white label em wireframe) e template do inicializador
   astro.config.mjs              output server + adaptador Node + integrations: [axysPortal()]
   src/
     data/home.ts                conteúdo que ainda não vem do CMS, com a origem de cada seção
@@ -98,7 +105,8 @@ sites/demo/                     ← site do cliente (aqui, white label em wirefr
     pages/                      rotas do site (nomes em pt-BR porque viram URLs públicas)
     actions/index.ts            Astro Action do envio de formulário (delegada ao pacote)
     scripts/carousel.ts         <axys-carousel>, Web Component do topo da home
-    styles/wireframe.css        estilo de wireframe; o design do cliente substitui (Tailwind + 7-1, ADR-018 D6)
+    styles/wireframe.css        estilo de wireframe; o design do cliente substitui (Tailwind + 7-1, ADR-018 D6).
+                                Trechos entre marcadores create-axys-site saem da base mínima
 ```
 
 **Convenção de nomes** — tudo que é código fica em inglês:
@@ -148,7 +156,7 @@ Este repositório evolui para o monorepo de front-end do ADR-018, em etapas veri
 | Etapa | Entrega | Pronto quando |
 | --- | --- | --- |
 | 1. Pacote ✅ | npm workspaces: `packages/portal` (`@axys/portal`) + `sites/demo`. O pacote expõe a integração `axysPortal()` (middleware, rotas de sitemap/robots, variáveis `AXYS_*`, tipos de `Astro.locals`) e componentes/funções por caminhos estáveis. `.ts` e `.astro` como código-fonte, processados pelo Vite do site (`ssr.noExternal`), sem build próprio | O demo roda e builda igual, sem `src/portal/` (concluída em 14/10/2026) |
-| 2. Inicializador | `packages/create-axys-site`: `npm create axys-site@latest <nome>`. O template é o próprio demo | No CI, gerar um site de cada base e passar em `check` e `build` |
+| 2. Inicializador ✅ | `packages/create-axys-site`: `npm create axys-site@latest <nome>`. O template é o próprio demo | No CI, gerar um site de cada base e passar em `check` e `build` (`npm run test:create`, pronto para o CI da etapa 3; concluída em 14/10/2026) |
 | 3. Qualidade | Changesets (versão e changelog; maior casada com a API), Vitest no pacote, Playwright no demo, GitHub Actions | Pipeline verde a cada mudança no pacote |
 | 4. Publicação | Azure Artifacts, escopo `@axys` (não publicar no repositório pessoal) | Instalar o pacote e criar um site a partir do feed |
 
@@ -164,7 +172,7 @@ front substituir pelo design do cliente.
 
 ## Próximos passos
 
-1. Etapa 2 do roteiro acima: o inicializador `create-axys-site`, com as bases completa e mínima.
+1. Etapa 3 do roteiro acima: Changesets, Vitest no pacote, Playwright no demo e GitHub Actions rodando `test:create`.
 2. Decidir com produto a home editável (P9) — ela define o que entra no CMS antes do piloto.
 3. Cache HTTP com tags e o endpoint do webhook `conteudoAlterado` (ADR-019 D8).
 4. Consentimento LGPD antes de GTM, Meta Pixel e mapa incorporado (ADR-018 D10).

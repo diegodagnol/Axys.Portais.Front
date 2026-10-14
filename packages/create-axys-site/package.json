@@ -1,0 +1,24 @@
+{
+  "name": "create-axys-site",
+  "version": "0.1.0",
+  "description": "Cria o site de um cliente sobre o @axys/portal: npm create axys-site@latest <nome>.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "bin": {
+    "create-axys-site": "./index.mjs"
+  },
+  "files": [
+    "index.mjs",
+    "src",
+    "bases",
+    "files",
+    "template"
+  ],
+  "scripts": {
+    "sync-template": "node scripts/sync-template.mjs",
+    "prepack": "node scripts/sync-template.mjs"
+  }
+}

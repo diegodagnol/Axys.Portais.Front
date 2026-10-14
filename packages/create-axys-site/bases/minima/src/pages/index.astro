@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import PostCard from '../components/PostCard.astro';
+import { listPosts } from '@axys/portal/api';
+import { pageSeo } from '@axys/portal/seo';
+import { cmsSources, staticSources } from '../data/home';
+
+// A home não é uma página do CMS (pendência P9): título e últimas notícias; as seções vêm com o design do cliente.
+const { site, host } = Astro.locals;
+const latestPosts = await listPosts(host, { size: 3 });
+
+const seo = pageSeo(site, { title: null, path: '/' });
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.seo.nomeSite ?? site.nome,
+  url: site.urlBase,
+  telephone: site.contato.telefones[0]?.numero,
+};
+---
+
+<BaseLayout seo={seo} jsonLd={jsonLd}>
+  <section class="page-header" data-source={staticSources.homeHeader.kind}>
+    <p class="section__source">{staticSources.homeHeader.label}</p>
+    <div class="container stack">
+      <h1>{site.seo.nomeSite ?? site.nome}</h1>
+    </div>
+  </section>
+
+  {latestPosts && latestPosts.itens.length > 0 && (
+    <Section source={cmsSources.latestPosts} title="Últimas notícias">
+      <ul class="grid grid--3">
+        {latestPosts.itens.map((post) => (
+          <li><PostCard post={post} /></li>
+        ))}
+      </ul>
+      <p class="align-right"><a href="/noticias">Ver todas →</a></p>
+    </Section>
+  )}
+</BaseLayout>

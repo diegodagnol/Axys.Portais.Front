@@ -7,3 +7,4 @@ dist/
 
 # Gerado do contrato por `npm run types`
 packages/portal/src/api/schema.d.ts
+packages/create-axys-site/template/

@@ -21,7 +21,9 @@
     "prebuild": "npm run types",
     "build": "npm run build -w demo",
     "check": "npm run types && npm run check -w demo",
-    "start": "npm run start -w demo"
+    "start": "npm run start -w demo",
+    "create-site": "node packages/create-axys-site/index.mjs",
+    "test:create": "node scripts/test-create.mjs"
   },
   "devDependencies": {
     "@stoplight/prism-cli": "5.16.0"
