@@ -131,7 +131,6 @@ Continuam as P1 a P8 do contrato.
 | --- | --- |
 | P9 | A home e as páginas de módulo (blog, fale conosco) não são páginas do CMS e não recebem SEO pronto da API; o case repete a regra do título (`applyTitleTemplate`). |
 | P10 | O contrato não informa o fuso da instalação (fixo em `src/portal/format.ts`). |
-| P11 | `CampoFormulario.configuracao` usa `oneOf` no contrato; deveria ser `anyOf` (vários `Config*` casam com o mesmo objeto). |
 | P12 | Com cache de página, o carimbo de tempo do formulário fica congelado no HTML: cache curto em páginas com formulário. |
 | P13 | Atrás do IIS, conferir se `clientAddress` recebe o IP do visitante e não o do proxy. |
 

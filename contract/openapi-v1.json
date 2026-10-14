@@ -886,7 +886,8 @@
           "largura": { "type": "string", "enum": ["inteira", "meia"] },
           "recebeResposta": { "type": "boolean" },
           "configuracao": {
-            "oneOf": [
+            "description": "Depende de `tipo`. É `anyOf`, não `oneOf`: os `Config*` têm só propriedades opcionais, então um mesmo objeto casa com vários deles e um `oneOf` seria recusado por validadores estritos.",
+            "anyOf": [
               { "$ref": "#/components/schemas/ConfigTextoCurto" },
               { "$ref": "#/components/schemas/ConfigTextoLongo" },
               { "$ref": "#/components/schemas/ConfigEmail" },
