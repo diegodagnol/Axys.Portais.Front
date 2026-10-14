@@ -1,0 +1,39 @@
+{
+  "name": "@axys/portal",
+  "version": "0.1.0",
+  "description": "Plataforma do site público Axys.Portal: integração Astro, cliente da API pública de conteúdo, SEO, formulários.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./api": "./src/api/index.ts",
+    "./seo": "./src/seo/index.ts",
+    "./forms": "./src/forms/submission.ts",
+    "./format": "./src/format.ts",
+    "./middleware": "./src/middleware.ts",
+    "./components/*": "./src/components/*",
+    "./routes/*": "./src/routes/*"
+  },
+  "files": [
+    "src",
+    "contract"
+  ],
+  "scripts": {
+    "types": "openapi-typescript contract/openapi-v1.json -o src/api/schema.d.ts",
+    "contract:update": "node scripts/update-contract.mjs && npm run types",
+    "prepare": "npm run types"
+  },
+  "peerDependencies": {
+    "astro": "^7.3.0"
+  },
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
+  }
+}

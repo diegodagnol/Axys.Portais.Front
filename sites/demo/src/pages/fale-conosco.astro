@@ -1,0 +1,76 @@
+---
+import { actions } from 'astro:actions';
+import { AXYS_CONTACT_FORM_ID } from 'astro:env/server';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NotFound from '../components/NotFound.astro';
+import Location from '../components/Location.astro';
+import AxysForm from '@axys/portal/components/AxysForm.astro';
+import { getForm } from '@axys/portal/api';
+import { pageSeo } from '@axys/portal/seo';
+import { cmsSources, staticSources } from '../data/home';
+
+const { site, host } = Astro.locals;
+
+// POST/redirect/GET: depois do envio aceito, recarregar a página não reenvia (ADR-020 D5).
+const result = Astro.getActionResult(actions.submitForm);
+if (result?.data?.accepted) {
+  return Astro.redirect(`${Astro.url.pathname}?enviado=1`, 303);
+}
+
+const form = AXYS_CONTACT_FORM_ID ? await getForm(host, AXYS_CONTACT_FORM_ID) : null;
+if (!form) {
+  Astro.response.status = 404;
+}
+
+const submitted = Astro.url.searchParams.get('enviado') === '1';
+const rejected = result?.data && !result.data.accepted ? result.data : null;
+const alert = result?.error?.message ?? rejected?.message ?? null;
+const whatsapp = site.contato.telefones.find((phone) => phone.exibirNoBalaoWhatsApp && phone.linkWhatsApp);
+
+const seo = pageSeo(site, { title: 'Entre em contato', path: '/fale-conosco', index: !submitted });
+---
+
+<BaseLayout seo={seo}>
+  <section class="page-header" data-source={staticSources.moduleHeader.kind}>
+    <p class="section__source">{staticSources.moduleHeader.label}</p>
+    <div class="container stack">
+      <h1>Entre em contato</h1>
+      <p class="page-header__subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    </div>
+  </section>
+
+  <section class="section" data-source={cmsSources.form.kind}>
+    <p class="section__source">{cmsSources.form.label} · canais: {cmsSources.contact.label}</p>
+    <div class="container two-columns">
+      <div>
+        {!form ? (
+          <NotFound title="Formulário indisponível" />
+        ) : submitted ? (
+          <p class="axys-form__success" role="status">{form.mensagemSucesso}</p>
+        ) : (
+          <AxysForm
+            form={form}
+            action={actions.submitForm}
+            sourcePage={Astro.url.pathname}
+            errors={rejected?.errors}
+            values={rejected?.values}
+            alert={alert}
+          />
+        )}
+      </div>
+
+      <aside class="stack box">
+        <h2>Lorem ipsum</h2>
+        {whatsapp && (
+          <p><a class="button button--primary" href={whatsapp.linkWhatsApp} target="_blank" rel="noopener" data-no-prerender>Call To Action</a></p>
+        )}
+        {site.contato.telefones.map((phone) => (
+          <p><a href={phone.linkWhatsApp ?? `tel:${phone.numero}`}>{phone.rotulo ?? 'Telefone'}: {phone.numeroFormatado}</a></p>
+        ))}
+        {site.contato.email && <p><a href={`mailto:${site.contato.email}`}>{site.contato.email}</a></p>}
+      </aside>
+    </div>
+  </section>
+
+  <Location />
+</BaseLayout>

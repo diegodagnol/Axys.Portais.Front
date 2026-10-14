@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Section from '../components/Section.astro';
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import PostCard from '../components/PostCard.astro';
+import CtaSection from '../components/CtaSection.astro';
+import Location from '../components/Location.astro';
+import Faq from '../components/Faq.astro';
+import { listBanners, listPosts } from '@axys/portal/api';
+import { pageSeo } from '@axys/portal/seo';
+import { cards, cmsSources, highlights, linkGroups, steps } from '../data/home';
+
+// A home não é uma página do CMS (pendência P9): é a composição de seções abaixo.
+const { site, host } = Astro.locals;
+const [banners, latestPosts] = await Promise.all([listBanners(host, 'principal'), listPosts(host, { size: 3 })]);
+
+const seo = pageSeo(site, { title: null, path: '/' });
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.seo.nomeSite ?? site.nome,
+  url: site.urlBase,
+  telephone: site.contato.telefones[0]?.numero,
+};
+---
+
+<BaseLayout seo={seo} jsonLd={jsonLd}>
+  <Hero banners={banners} />
+
+  <Section source={cards.source} title={cards.title}>
+    <ul class="grid grid--4">
+      {cards.items.map((item) => (
+        <li class="card">
+          <ImagePlaceholder label="Ícone" ratio="1 / 1" class="card__icon" />
+          <h3 class="card__title"><a href={item.url}>{item.title}</a></h3>
+          <p class="card__text">{item.text}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section source={steps.source} title={steps.title}>
+    <ol class="grid grid--3 steps">
+      {steps.items.map((step, i) => (
+        <li class="steps__item">
+          <span class="steps__number">{i + 1}</span>
+          {step}
+        </li>
+      ))}
+    </ol>
+  </Section>
+
+  <Section source={linkGroups.source} title={linkGroups.title}>
+    <div class="grid grid--3">
+      {linkGroups.groups.map((group) => (
+        <div class="stack">
+          <h3><a href={group.url}>{group.title}</a></h3>
+          <ul class="plain-list">
+            {group.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </Section>
+
+  <CtaSection />
+
+  <Section source={highlights.source} title={highlights.title}>
+    <div class="two-columns">
+      <ImagePlaceholder label="Imagem de destaque" ratio="4 / 3" />
+      <ul class="stack">
+        {highlights.items.map((item) => (
+          <li>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <Location />
+
+  {latestPosts && latestPosts.itens.length > 0 && (
+    <Section source={cmsSources.latestPosts} title="Lorem ipsum do blog">
+      <ul class="grid grid--3">
+        {latestPosts.itens.map((post) => (
+          <li><PostCard post={post} /></li>
+        ))}
+      </ul>
+      <p class="align-right"><a href="/noticias">Ver todos →</a></p>
+    </Section>
+  )}
+
+  <Faq />
+</BaseLayout>

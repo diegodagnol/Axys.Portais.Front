@@ -1,35 +1,29 @@
 {
-  "name": "axys-portais-front-demo",
-  "version": "0.1.0",
+  "name": "axys-portais-front",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Case do site público em Astro sobre a API pública de conteúdo (ADR-018, ADR-019).",
+  "description": "Monorepo de front-end do site público Axys.Portal: pacote @axys/portal e sites (ADR-018).",
   "engines": {
     "node": ">=22.12.0"
   },
+  "workspaces": [
+    "packages/*",
+    "sites/*"
+  ],
   "scripts": {
-    "types": "openapi-typescript contract/openapi-v1.json -o src/portal/api/schema.d.ts",
-    "contract:update": "node scripts/update-contract.mjs && npm run types",
+    "types": "npm run types -w @axys/portal",
+    "contract:update": "npm run contract:update -w @axys/portal",
     "mock": "node mock/server.mjs",
-    "mock:contract": "prism mock contract/openapi-v1.json --port 4011",
+    "mock:contract": "prism mock packages/portal/contract/openapi-v1.json --port 4011",
     "predev": "npm run types",
-    "dev": "astro dev",
+    "dev": "npm run dev -w demo",
     "prebuild": "npm run types",
-    "build": "astro check && astro build",
-    "start": "node ./dist/server/entry.mjs",
-    "check": "astro check"
-  },
-  "dependencies": {
-    "@astrojs/node": "11.1.7",
-    "@tailwindcss/vite": "4.3.3",
-    "astro": "7.3.8",
-    "openapi-fetch": "0.17.0",
-    "tailwindcss": "4.3.3"
+    "build": "npm run build -w demo",
+    "check": "npm run types && npm run check -w demo",
+    "start": "npm run start -w demo"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.10",
-    "@stoplight/prism-cli": "5.16.0",
-    "openapi-typescript": "7.13.0",
-    "typescript": "5.9.3"
+    "@stoplight/prism-cli": "5.16.0"
   }
 }

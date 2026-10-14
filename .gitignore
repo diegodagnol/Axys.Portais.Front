@@ -6,4 +6,4 @@ dist/
 !.env.example
 
 # Gerado do contrato por `npm run types`
-src/portal/api/schema.d.ts
+packages/portal/src/api/schema.d.ts

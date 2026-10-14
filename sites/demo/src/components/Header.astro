@@ -1,0 +1,20 @@
+---
+import Menu from './Menu.astro';
+import Cta from './Cta.astro';
+import { getMenu } from '@axys/portal/api';
+
+const { host } = Astro.locals;
+const mainMenu = await getMenu(host, 'principal');
+---
+
+<header class="header">
+  <div class="header__bar container">
+    <a class="header__logo" href="/">[ Logo ]</a>
+    {mainMenu && (
+      <nav class="header__menu" aria-label={mainMenu.nome}>
+        <Menu items={mainMenu.itens} />
+      </nav>
+    )}
+    <Cta text="CTA" />
+  </div>
+</header>
